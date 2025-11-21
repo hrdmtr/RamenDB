@@ -1,8 +1,8 @@
 # プロジェクト状況
 
-**最終更新**: 2025-11-22 05:15
-**現在のブランチ**: feature/supabase-migration
-**プロジェクト状態**: データベース設計・マイグレーション作成完了
+**最終更新**: 2025-11-22 06:15
+**現在のブランチ**: main
+**プロジェクト状態**: Supabaseセットアップ完了、開発環境稼働中
 
 ---
 
@@ -23,10 +23,11 @@
   - [x] ERD（Entity Relationship Diagram）の作成
   - [x] テーブル定義書の作成
   - [x] Supabase マイグレーションファイルの作成
-- [ ] Supabase プロジェクトのセットアップ（実際のプロジェクト作成）
-  - [ ] Supabase プロジェクトの作成
-  - [ ] 環境変数の設定（.env.local）
-  - [ ] マイグレーションの実行
+- [x] Supabase プロジェクトのセットアップ（実際のプロジェクト作成）
+  - [x] Supabase プロジェクトの作成
+  - [x] 環境変数の設定（.env.local）
+  - [x] マイグレーションの実行
+  - [x] 接続テスト成功
 - [x] TypeScript 型定義の作成
   - [x] Restaurant 型
   - [x] Review 型
@@ -68,7 +69,10 @@ RamenDB/
 ├── app/                      # Next.js App Router
 │   ├── layout.tsx           # ルートレイアウト
 │   ├── page.tsx             # ホーム画面
-│   └── globals.css          # グローバルスタイル
+│   ├── globals.css          # グローバルスタイル
+│   └── api/                 # APIルート
+│       └── test/            # 接続テストAPI
+│           └── route.ts     # Supabase接続テスト
 ├── components/               # 共通コンポーネント
 │   └── ui/                  # shadcn/uiコンポーネント（今後追加）
 ├── lib/                      # ユーティリティ・ヘルパー
@@ -181,6 +185,17 @@ RamenDB/
 - Supabaseマイグレーションファイルの作成
   - 初期スキーマSQL（9テーブル、トリガー、初期データ）
   - マイグレーション実行手順書（supabase/migrations/README.md）
+- PRをmainブランチにマージ
+
+### 2025-11-22 06:15
+- Supabaseプロジェクトのセットアップ完了
+  - プロジェクトURL: https://rvrmhcvjhoifmjlaypvn.supabase.co
+  - 環境変数の設定（.env.local）
+  - マイグレーションの実行（9テーブル、初期データ投入）
+- 開発サーバー起動確認（http://localhost:3001）
+- Supabase接続テスト成功
+  - テストAPIルートの作成（/api/test）
+  - カテゴリデータ8件の取得確認
 
 ---
 
@@ -200,9 +215,8 @@ RamenDB/
 
 ## 次のステップ
 
-1. feature/supabase-migration ブランチのコミット・プッシュ・PR作成
-2. Supabase プロジェクトの作成（Webコンソール）
-3. 環境変数の設定（.env.local）
-4. マイグレーションの実行
-5. 開発サーバーの起動確認
-6. 店舗一覧画面の実装開始
+1. レストランのサンプルデータ投入
+2. 店舗一覧画面の実装
+3. 店舗詳細画面の実装
+4. レビュー機能の実装
+5. 検索・フィルタリング機能の実装
