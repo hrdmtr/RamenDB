@@ -3,7 +3,13 @@
     "allow": [
       "Read(//Users/haradamitsuru/repos/felearn/**)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\n機能: プロジェクト初期セットアップ\n\n- 開発ルール・規約ドキュメントの追加\n  - DEVELOPMENT_RULES.md: 開発フロー、コミット規約、コーディング規約\n  - CLAUDE.md: プロジェクト概要とAI向け説明\n  - CURRENT_STATUS.md: プロジェクト状況とTODO管理\n- 要件定義書の追加（docs/要件定義.md）\n- Git設定ファイルの追加\n  - .gitignore: Git除外設定\n  - .dockerignore: Docker除外設定\n- 環境変数サンプルの追加（.env.example）\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\n機能: プロジェクト初期セットアップ\n\n- 開発ルール・規約ドキュメントの追加\n  - DEVELOPMENT_RULES.md: 開発フロー、コミット規約、コーディング規約\n  - CLAUDE.md: プロジェクト概要とAI向け説明\n  - CURRENT_STATUS.md: プロジェクト状況とTODO管理\n- 要件定義書の追加（docs/要件定義.md）\n- Git設定ファイルの追加\n  - .gitignore: Git除外設定\n  - .dockerignore: Docker除外設定\n- 環境変数サンプルの追加（.env.example）\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npm run build)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n機能: Next.js プロジェクト初期化\n\n- Next.js 15 + TypeScript + Tailwind CSS のセットアップ\n- 依存関係のインストール\n  - React 19\n  - Next.js 15.5.6\n  - TypeScript\n  - Tailwind CSS\n  - Supabase client\n  - clsx, tailwind-merge\n- 設定ファイルの作成\n  - tsconfig.json: TypeScript設定\n  - next.config.ts: Next.js設定\n  - tailwind.config.ts: Tailwind設定\n  - postcss.config.mjs: PostCSS設定\n  - components.json: shadcn/ui設定\n- 基本的なプロジェクト構造の構築\n  - app/layout.tsx: ルートレイアウト\n  - app/page.tsx: ホーム画面\n  - app/globals.css: グローバルスタイル\n  - lib/utils.ts: ユーティリティ関数\n  - lib/supabase.ts: Supabaseクライアント\n  - types/index.ts: TypeScript型定義（Restaurant, Review, User, Category, Tag）\n- CURRENT_STATUS.md の更新\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

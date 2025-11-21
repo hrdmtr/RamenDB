@@ -1,8 +1,8 @@
 # プロジェクト状況
 
-**最終更新**: 2025-11-22 04:45
+**最終更新**: 2025-11-22 05:00
 **現在のブランチ**: main
-**プロジェクト状態**: 初期セットアップ段階
+**プロジェクト状態**: Next.js初期セットアップ完了
 
 ---
 
@@ -10,29 +10,31 @@
 
 ### フェーズ1: プロジェクト初期セットアップ
 
-- [ ] Next.js + TypeScript プロジェクトの初期化
-  - [ ] package.jsonの作成
-  - [ ] Next.js 15 のインストール
-  - [ ] TypeScript の設定
-  - [ ] Tailwind CSS の設定
-  - [ ] shadcn/ui のセットアップ
-- [ ] Supabase プロジェクトのセットアップ
+- [x] Next.js + TypeScript プロジェクトの初期化
+  - [x] package.jsonの作成
+  - [x] Next.js 15 のインストール
+  - [x] TypeScript の設定
+  - [x] Tailwind CSS の設定
+  - [x] shadcn/ui のセットアップ
+- [x] Supabase クライアントのセットアップ
+  - [x] Supabase クライアントライブラリのインストール
+  - [x] Supabase クライアントの設定（lib/supabase.ts）
+- [ ] Supabase プロジェクトのセットアップ（実際のプロジェクト作成）
   - [ ] Supabase プロジェクトの作成
-  - [ ] 環境変数の設定
-  - [ ] Supabase クライアントの設定
+  - [ ] 環境変数の設定（.env.local）
 - [ ] データベース設計
   - [ ] ERD（Entity Relationship Diagram）の作成
   - [ ] テーブル定義書の作成
   - [ ] Supabase マイグレーションファイルの作成
-- [ ] TypeScript 型定義の作成
-  - [ ] Restaurant 型
-  - [ ] Review 型
-  - [ ] User 型
-  - [ ] Category/Tag 型
-- [ ] 基本的なプロジェクト構造の構築
-  - [ ] ディレクトリ構成の整備
-  - [ ] 共通コンポーネントの作成
-  - [ ] ユーティリティ関数の作成
+- [x] TypeScript 型定義の作成
+  - [x] Restaurant 型
+  - [x] Review 型
+  - [x] User 型
+  - [x] Category/Tag 型
+- [x] 基本的なプロジェクト構造の構築
+  - [x] ディレクトリ構成の整備
+  - [x] 共通コンポーネントの準備
+  - [x] ユーティリティ関数の作成（lib/utils.ts）
 
 ### フェーズ2: MVP機能実装（優先順位順）
 
@@ -62,25 +64,34 @@
 ```
 RamenDB/
 ├── .git/                     # Gitリポジトリ
+├── app/                      # Next.js App Router
+│   ├── layout.tsx           # ルートレイアウト
+│   ├── page.tsx             # ホーム画面
+│   └── globals.css          # グローバルスタイル
+├── components/               # 共通コンポーネント
+│   └── ui/                  # shadcn/uiコンポーネント（今後追加）
+├── lib/                      # ユーティリティ・ヘルパー
+│   ├── utils.ts             # ユーティリティ関数
+│   └── supabase.ts          # Supabaseクライアント
+├── types/                    # TypeScript型定義
+│   └── index.ts             # 共通型定義
+├── public/                   # 静的ファイル
 ├── docs/                     # ドキュメント
 │   └── 要件定義.md          # 要件定義書
+├── node_modules/             # 依存パッケージ
+├── package.json              # 依存関係
+├── package-lock.json         # 依存関係ロックファイル
+├── tsconfig.json             # TypeScript設定
+├── tailwind.config.ts        # Tailwind設定
+├── postcss.config.mjs        # PostCSS設定
+├── next.config.ts            # Next.js設定
+├── components.json           # shadcn/ui設定
 ├── CLAUDE.md                 # プロジェクト概要（AI向け）
 ├── CURRENT_STATUS.md         # 本ファイル
 ├── DEVELOPMENT_RULES.md      # 開発ルール・規約
 ├── .gitignore               # Git除外設定
 ├── .env.example             # 環境変数サンプル
 └── .dockerignore            # Docker除外設定
-
-（以下、今後作成予定）
-├── app/                     # Next.js App Router
-├── components/              # 共通コンポーネント
-├── lib/                     # ユーティリティ・ヘルパー
-├── types/                   # TypeScript型定義
-├── public/                  # 静的ファイル
-├── package.json             # 依存関係
-├── tsconfig.json            # TypeScript設定
-├── tailwind.config.ts       # Tailwind設定
-└── next.config.ts           # Next.js設定
 ```
 
 ---
@@ -130,7 +141,7 @@ RamenDB/
 
 ## 📝 開発メモ
 
-### 2025-11-22
+### 2025-11-22 04:45
 - プロジェクト開始
 - felearnプロジェクトから開発ルールをコピー
   - DEVELOPMENT_RULES.md
@@ -140,6 +151,21 @@ RamenDB/
   - .dockerignore
 - 要件定義書を確認（docs/要件定義.md）
 - CURRENT_STATUS.md を作成（本ファイル）
+- イニシャルコミット＆プッシュ
+
+### 2025-11-22 05:00
+- Next.js 15 プロジェクトの初期化完了
+  - package.jsonの作成
+  - Next.js、React 19、TypeScriptのインストール
+  - Tailwind CSSの設定
+  - shadcn/uiの設定
+  - Supabaseクライアントのインストール
+- 基本的なプロジェクト構造を構築
+  - app/（layout.tsx, page.tsx, globals.css）
+  - components/（shadcn/ui用ディレクトリ）
+  - lib/（utils.ts, supabase.ts）
+  - types/index.ts（Restaurant, Review, User, Category, Tag型定義）
+  - 設定ファイル（tsconfig.json, next.config.ts, tailwind.config.ts等）
 
 ---
 
@@ -159,7 +185,8 @@ RamenDB/
 
 ## 次のステップ
 
-1. Next.js + TypeScript プロジェクトの初期化
-2. Supabase プロジェクトのセットアップ
-3. データベース設計（ERD作成）
-4. 型定義の作成
+1. Supabase プロジェクトの作成と設定
+2. データベース設計（ERD作成）
+3. Supabaseマイグレーションファイルの作成
+4. 開発サーバーの起動確認
+5. 店舗一覧画面の実装開始
