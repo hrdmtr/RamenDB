@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/haradamitsuru/repos/felearn/**)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n機能: プロジェクト初期セットアップ\n\n- 開発ルール・規約ドキュメントの追加\n  - DEVELOPMENT_RULES.md: 開発フロー、コミット規約、コーディング規約\n  - CLAUDE.md: プロジェクト概要とAI向け説明\n  - CURRENT_STATUS.md: プロジェクト状況とTODO管理\n- 要件定義書の追加（docs/要件定義.md）\n- Git設定ファイルの追加\n  - .gitignore: Git除外設定\n  - .dockerignore: Docker除外設定\n- 環境変数サンプルの追加（.env.example）\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
