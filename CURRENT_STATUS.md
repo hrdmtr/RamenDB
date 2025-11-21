@@ -1,8 +1,8 @@
 # プロジェクト状況
 
-**最終更新**: 2025-11-22 05:00
-**現在のブランチ**: main
-**プロジェクト状態**: Next.js初期セットアップ完了
+**最終更新**: 2025-11-22 05:15
+**現在のブランチ**: feature/supabase-migration
+**プロジェクト状態**: データベース設計・マイグレーション作成完了
 
 ---
 
@@ -19,13 +19,14 @@
 - [x] Supabase クライアントのセットアップ
   - [x] Supabase クライアントライブラリのインストール
   - [x] Supabase クライアントの設定（lib/supabase.ts）
+- [x] データベース設計
+  - [x] ERD（Entity Relationship Diagram）の作成
+  - [x] テーブル定義書の作成
+  - [x] Supabase マイグレーションファイルの作成
 - [ ] Supabase プロジェクトのセットアップ（実際のプロジェクト作成）
   - [ ] Supabase プロジェクトの作成
   - [ ] 環境変数の設定（.env.local）
-- [ ] データベース設計
-  - [ ] ERD（Entity Relationship Diagram）の作成
-  - [ ] テーブル定義書の作成
-  - [ ] Supabase マイグレーションファイルの作成
+  - [ ] マイグレーションの実行
 - [x] TypeScript 型定義の作成
   - [x] Restaurant 型
   - [x] Review 型
@@ -75,9 +76,14 @@ RamenDB/
 │   └── supabase.ts          # Supabaseクライアント
 ├── types/                    # TypeScript型定義
 │   └── index.ts             # 共通型定義
+├── supabase/                 # Supabaseマイグレーション
+│   └── migrations/          # マイグレーションファイル
+│       ├── README.md        # マイグレーション実行手順
+│       └── 20251122000001_initial_schema.sql  # 初期スキーマ
 ├── public/                   # 静的ファイル
 ├── docs/                     # ドキュメント
-│   └── 要件定義.md          # 要件定義書
+│   ├── 要件定義.md          # 要件定義書
+│   └── database-design.md   # データベース設計書
 ├── node_modules/             # 依存パッケージ
 ├── package.json              # 依存関係
 ├── package-lock.json         # 依存関係ロックファイル
@@ -166,6 +172,15 @@ RamenDB/
   - lib/（utils.ts, supabase.ts）
   - types/index.ts（Restaurant, Review, User, Category, Tag型定義）
   - 設定ファイル（tsconfig.json, next.config.ts, tailwind.config.ts等）
+- データベース設計書の作成（docs/database-design.md）
+- ブランチ運用開始
+  - `develop` ブランチ作成
+  - `feature/supabase-migration` ブランチで作業開始
+
+### 2025-11-22 05:15
+- Supabaseマイグレーションファイルの作成
+  - 初期スキーマSQL（9テーブル、トリガー、初期データ）
+  - マイグレーション実行手順書（supabase/migrations/README.md）
 
 ---
 
@@ -185,8 +200,9 @@ RamenDB/
 
 ## 次のステップ
 
-1. Supabase プロジェクトの作成と設定
-2. データベース設計（ERD作成）
-3. Supabaseマイグレーションファイルの作成
-4. 開発サーバーの起動確認
-5. 店舗一覧画面の実装開始
+1. feature/supabase-migration ブランチのコミット・プッシュ・PR作成
+2. Supabase プロジェクトの作成（Webコンソール）
+3. 環境変数の設定（.env.local）
+4. マイグレーションの実行
+5. 開発サーバーの起動確認
+6. 店舗一覧画面の実装開始
