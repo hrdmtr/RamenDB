@@ -1,49 +1,116 @@
-import { supabase } from '@/lib/supabase';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Restaurant } from '@/types';
+import RestaurantFilter from '@/components/RestaurantFilter';
 
-async function getRestaurants() {
-  const { data: restaurants, error } = await supabase
-    .from('restaurants')
-    .select(`
-      *,
-      restaurant_categories (
-        category:categories (
-          id,
-          name,
-          slug
-        )
-      ),
-      restaurant_tags (
-        tag:tags (
-          id,
-          name,
-          slug
-        )
-      )
-    `)
-    .order('average_score', { ascending: false });
-
-  if (error) {
-    console.error('レストランデータ取得エラー:', error);
-    return [];
-  }
-
-  return restaurants as Restaurant[];
+interface FilterValues {
+  keyword: string;
+  category: string;
+  tag: string;
+  station: string;
+  railway: string;
+  minScore: string;
 }
 
-export default async function RestaurantsPage() {
-  const restaurants = await getRestaurants();
+export default function RestaurantsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // URLパラメータから初期フィルター値を取得
+  const initialFilters: FilterValues = {
+    keyword: searchParams.get('keyword') || '',
+    category: searchParams.get('category') || '',
+    tag: searchParams.get('tag') || '',
+    station: searchParams.get('station') || '',
+    railway: searchParams.get('railway') || '',
+    minScore: searchParams.get('minScore') || '',
+  };
+
+  // レストランデータを取得
+  const fetchRestaurants = async (filters: FilterValues) => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          params.append(key, value);
+        }
+      });
+
+      const response = await fetch(`/api/restaurants?${params.toString()}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setRestaurants(data.data);
+      }
+    } catch (error) {
+      console.error('レストランデータ取得エラー:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 初回読み込み
+  useEffect(() => {
+    fetchRestaurants(initialFilters);
+  }, []);
+
+  // フィルター変更時の処理
+  const handleFilterChange = (filters: FilterValues) => {
+    // URLパラメータを更新
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        params.append(key, value);
+      }
+    });
+
+    const queryString = params.toString();
+    router.push(`/restaurants${queryString ? `?${queryString}` : ''}`);
+
+    // レストランデータを再取得
+    fetchRestaurants(filters);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">ラーメン店一覧</h1>
         <p className="text-gray-600">
-          {restaurants.length}件の店舗が登録されています
+          {isLoading ? '読み込み中...' : `${restaurants.length}件の店舗が見つかりました`}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* フィルター */}
+      <RestaurantFilter
+        onFilterChange={handleFilterChange}
+        initialFilters={initialFilters}
+      />
+
+      {/* ローディング */}
+      {isLoading && (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">読み込み中...</p>
+        </div>
+      )}
+
+      {/* 結果なし */}
+      {!isLoading && restaurants.length === 0 && (
+        <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <p className="text-gray-600 text-lg">
+            条件に一致する店舗が見つかりませんでした
+          </p>
+        </div>
+      )}
+
+      {/* 店舗一覧 */}
+      {!isLoading && restaurants.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {restaurants.map((restaurant) => (
           <div
             key={restaurant.id}
@@ -126,7 +193,8 @@ export default async function RestaurantsPage() {
             </a>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
