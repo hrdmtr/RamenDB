@@ -15,7 +15,8 @@
       "Bash(git commit -m \"$(cat <<''EOF''\n機能: Supabaseマイグレーションファイルの追加\n\n- マイグレーションファイルの作成\n  - supabase/migrations/20251122000001_initial_schema.sql\n    - 9テーブルの作成（users, restaurants, categories, tags, reviews等）\n    - UUID拡張の有効化\n    - インデックスの設定\n    - 外部キー制約（CASCADE削除）\n    - updated_at自動更新トリガー\n    - レストラン平均スコア自動計算トリガー\n    - 初期データ投入（カテゴリ8件、タグ7件）\n  - supabase/migrations/README.md\n    - マイグレーション実行手順\n    - ロールバック手順\n- CURRENT_STATUS.mdの更新\n  - ブランチ情報の更新\n  - プロジェクト構造の更新\n  - 開発メモの追加\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(cat:*)",
       "Bash(npm run dev)",
-      "Bash(git commit -m \"$(cat <<''EOF''\n機能: Supabaseセットアップ完了\n\n- Supabaseプロジェクトの作成\n  - プロジェクトURL: https://rvrmhcvjhoifmjlaypvn.supabase.co\n  - 環境変数の設定（.env.local）\n- データベースマイグレーションの実行\n  - 9テーブルの作成\n  - トリガーの設定\n  - 初期データ投入（カテゴリ8件、タグ7件）\n- 開発環境の確認\n  - 開発サーバー起動（http://localhost:3001）\n  - Supabase接続テスト成功\n  - テストAPIルートの作成（/api/test）\n  - カテゴリデータ取得確認\n- CURRENT_STATUS.mdの更新\n  - プロジェクト状態の更新\n  - 完了タスクのチェック\n  - プロジェクト構造の更新\n  - 開発メモの追加\n  - 次のステップの更新\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\n機能: Supabaseセットアップ完了\n\n- Supabaseプロジェクトの作成\n  - プロジェクトURL: https://rvrmhcvjhoifmjlaypvn.supabase.co\n  - 環境変数の設定（.env.local）\n- データベースマイグレーションの実行\n  - 9テーブルの作成\n  - トリガーの設定\n  - 初期データ投入（カテゴリ8件、タグ7件）\n- 開発環境の確認\n  - 開発サーバー起動（http://localhost:3001）\n  - Supabase接続テスト成功\n  - テストAPIルートの作成（/api/test）\n  - カテゴリデータ取得確認\n- CURRENT_STATUS.mdの更新\n  - プロジェクト状態の更新\n  - 完了タスクのチェック\n  - プロジェクト構造の更新\n  - 開発メモの追加\n  - 次のステップの更新\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
