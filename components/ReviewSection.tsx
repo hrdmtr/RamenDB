@@ -73,12 +73,132 @@ export default function ReviewSection({ restaurantId, reviews }: ReviewSectionPr
                 </div>
               </div>
 
-              {/* レビューコメント */}
-              {review.comment && (
-                <p className="text-gray-700 leading-relaxed">
-                  {review.comment}
-                </p>
-              )}
+              {/* レビュー詳細項目 */}
+              <div className="space-y-4">
+                {/* 味 */}
+                {review.taste_comment && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">🍜 味</h4>
+                    <p className="text-gray-700 leading-relaxed pl-5">
+                      {review.taste_comment}
+                    </p>
+                  </div>
+                )}
+
+                {/* 雰囲気 */}
+                {review.atmosphere_type && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">🏪 雰囲気</h4>
+                    <p className="text-gray-700 leading-relaxed pl-5">
+                      {review.atmosphere_type === 'quiet' && '静か'}
+                      {review.atmosphere_type === 'lively' && '賑やか'}
+                      {review.atmosphere_type === 'normal' && '普通'}
+                      {review.atmosphere_type === 'other' && 'その他'}
+                      {review.atmosphere_comment && (
+                        <span className="text-gray-600"> - {review.atmosphere_comment}</span>
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                {/* 接客 */}
+                {review.service_comment && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">👥 接客</h4>
+                    <p className="text-gray-700 leading-relaxed pl-5">
+                      {review.service_comment}
+                    </p>
+                  </div>
+                )}
+
+                {/* コスパ */}
+                {review.cost_performance_comment && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">💰 コスパ</h4>
+                    <p className="text-gray-700 leading-relaxed pl-5">
+                      {review.cost_performance_comment}
+                    </p>
+                  </div>
+                )}
+
+                {/* アクセス */}
+                {review.accessibility_comment && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">📍 アクセス</h4>
+                    <p className="text-gray-700 leading-relaxed pl-5">
+                      {review.accessibility_comment}
+                    </p>
+                  </div>
+                )}
+
+                {/* セルフサービス */}
+                {review.self_service_type && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">🍽️ セルフサービス</h4>
+                    <p className="text-gray-700 leading-relaxed pl-5">
+                      {review.self_service_type === 'full_self' && '完全セルフ'}
+                      {review.self_service_type === 'partial_self' && '一部セルフ'}
+                      {review.self_service_type === 'full_service' && 'フルサービス'}
+                      {review.self_service_note && (
+                        <span className="text-gray-600"> - {review.self_service_note}</span>
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                {/* 提供時間 */}
+                {review.serving_time && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">⏱️ 提供時間</h4>
+                    <p className="text-gray-700 leading-relaxed pl-5">
+                      {review.serving_time === 'under_3' && '3分未満'}
+                      {review.serving_time === '3_to_7' && '3〜7分'}
+                      {review.serving_time === '7_to_15' && '7〜15分'}
+                      {review.serving_time === 'over_15' && '15分以上'}
+                      {review.serving_time_note && (
+                        <span className="text-gray-600"> - {review.serving_time_note}</span>
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                {/* 総合コメント */}
+                {review.general_comment && (
+                  <div className="pt-3 border-t">
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">💭 総合コメント</h4>
+                    <p className="text-gray-700 leading-relaxed pl-5">
+                      {review.general_comment}
+                    </p>
+                  </div>
+                )}
+
+                {/* 画像 */}
+                {review.image_urls && review.image_urls.length > 0 && (
+                  <div className="pt-3 border-t">
+                    <h4 className="text-sm font-bold text-gray-900 mb-2">📷 画像</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pl-5">
+                      {review.image_urls.map((url: string, index: number) => (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`レビュー画像 ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+                          onClick={() => window.open(url, '_blank')}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 旧形式のcommentフィールド対応（互換性のため） */}
+                {review.comment && !review.taste_comment && (
+                  <div className="pt-3 border-t">
+                    <p className="text-gray-700 leading-relaxed">
+                      {review.comment}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
 
