@@ -39,6 +39,29 @@ async function getRestaurant(id: string) {
   return restaurant as Restaurant;
 }
 
+async function getReviews(restaurantId: string) {
+  const { data: reviews, error } = await supabase
+    .from('reviews')
+    .select(`
+      *,
+      user:users (
+        id,
+        username,
+        display_name,
+        reviewer_score
+      )
+    `)
+    .eq('restaurant_id', restaurantId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('レビュー取得エラー:', error);
+    return [];
+  }
+
+  return reviews;
+}
+
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
 
 export default async function RestaurantDetailPage({
@@ -51,6 +74,8 @@ export default async function RestaurantDetailPage({
   if (!restaurant) {
     notFound();
   }
+
+  const reviews = await getReviews(params.id);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -234,15 +259,74 @@ export default async function RestaurantDetailPage({
           </div>
         )}
 
-        {/* レビューセクション（今後実装） */}
+        {/* レビューセクション */}
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-900">レビュー</h2>
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <p className="text-gray-500 mb-4">レビューはまだありません</p>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-              レビューを投稿する
-            </button>
-          </div>
+
+          {reviews.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <p className="text-gray-500 mb-4">レビューはまだありません</p>
+              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                レビューを投稿する
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {reviews.map((review: any) => (
+                <div
+                  key={review.id}
+                  className="border rounded-lg p-6 bg-white hover:shadow-md transition-shadow"
+                >
+                  {/* レビューヘッダー */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="font-semibold text-gray-900">
+                          {review.user.display_name}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          @{review.user.username}
+                        </span>
+                        {review.user.reviewer_score && (
+                          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                            信頼度: {(review.user.reviewer_score * 100).toFixed(0)}%
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-gray-600">
+                        {review.visit_date && (
+                          <span>来店日: {review.visit_date}</span>
+                        )}
+                        <span>
+                          投稿日: {new Date(review.created_at).toLocaleDateString('ja-JP')}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-bold text-blue-600">
+                        {review.score.toFixed(1)}
+                      </span>
+                      <span className="text-gray-500">/ 10.0</span>
+                    </div>
+                  </div>
+
+                  {/* レビューコメント */}
+                  {review.comment && (
+                    <p className="text-gray-700 leading-relaxed">
+                      {review.comment}
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {/* レビュー投稿ボタン */}
+              <div className="pt-6 border-t">
+                <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                  レビューを投稿する
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
