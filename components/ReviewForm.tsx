@@ -61,8 +61,8 @@ export default function ReviewForm({
 
         const data = await response.json();
 
-        if (!data.success) {
-          throw new Error(data.error);
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'アップロードに失敗しました');
         }
 
         return data.url;
@@ -75,6 +75,8 @@ export default function ReviewForm({
       setError(err.message || '画像のアップロードに失敗しました');
     } finally {
       setIsUploading(false);
+      // ファイル入力をリセット
+      e.target.value = '';
     }
   };
 

@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// サーバー側でストレージ操作を行うため、service_role_keyを使用
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(request: Request) {
   try {
@@ -44,7 +49,7 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Supabase Storageにアップロード
-    const { data, error } = await supabase.storage
+    const { data, error } = await supabaseAdmin.storage
       .from('review-images')
       .upload(fileName, buffer, {
         contentType: file.type,
@@ -59,7 +64,7 @@ export async function POST(request: Request) {
     // 公開URLを取得
     const {
       data: { publicUrl },
-    } = supabase.storage.from('review-images').getPublicUrl(fileName);
+    } = supabaseAdmin.storage.from('review-images').getPublicUrl(fileName);
 
     return NextResponse.json({
       success: true,
