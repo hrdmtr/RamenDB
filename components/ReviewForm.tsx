@@ -32,6 +32,7 @@ export default function ReviewForm({
 
   // 任意項目
   const [generalComment, setGeneralComment] = useState<string>('');
+  const [flavorRichness, setFlavorRichness] = useState<number>(5); // こってり度（0-10）
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -120,6 +121,7 @@ export default function ReviewForm({
           self_service_note: selfServiceNote || null,
           serving_time: servingTime,
           serving_time_note: servingTimeNote || null,
+          flavor_richness: flavorRichness,
           general_comment: generalComment || null,
           visit_date: visitDate || null,
           image_urls: imageUrls.length > 0 ? imageUrls : null,
@@ -319,10 +321,41 @@ export default function ReviewForm({
         />
       </div>
 
-      {/* 8. 総合コメント（任意） */}
+      {/* 8. 味の濃さ（こってり度） */}
       <div>
         <label className="block text-sm font-bold text-gray-900 mb-2">
-          8. 総合コメント（任意）
+          8. 味の濃さ（こってり度）<span className="text-red-600">*</span>
+        </label>
+        <p className="text-xs text-gray-600 mb-2">
+          スープやタレの濃さを教えてください
+        </p>
+        <div className="space-y-2">
+          <div className="flex items-center gap-4">
+            <input
+              type="range"
+              min="0"
+              max="10"
+              step="1"
+              value={flavorRichness}
+              onChange={(e) => setFlavorRichness(Number(e.target.value))}
+              className="flex-1"
+              required
+            />
+            <span className="text-2xl font-bold text-purple-600 w-16 text-right">
+              {flavorRichness}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>あっさり</span>
+            <span>こってり</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 9. 総合コメント（任意） */}
+      <div>
+        <label className="block text-sm font-bold text-gray-900 mb-2">
+          9. 総合コメント（任意）
         </label>
         <p className="text-xs text-gray-600 mb-2">
           全体としての感想・初訪問かどうか・再訪の意思など
@@ -387,10 +420,10 @@ export default function ReviewForm({
         </p>
       </div>
 
-      {/* 9. 総合スコア */}
+      {/* 10. 総合スコア */}
       <div>
         <label className="block text-sm font-bold text-gray-900 mb-2">
-          9. 総合スコア <span className="text-red-600">*</span>
+          10. 総合スコア <span className="text-red-600">*</span>
         </label>
         <div className="flex items-center gap-4">
           <input

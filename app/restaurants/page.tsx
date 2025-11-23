@@ -3,16 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Restaurant } from '@/types';
-import RestaurantFilter from '@/components/RestaurantFilter';
-
-interface FilterValues {
-  keyword: string;
-  category: string;
-  tag: string;
-  station: string;
-  railway: string;
-  minScore: string;
-}
+import SearchFilterPanel, { SearchFilters } from '@/components/SearchFilterPanel';
 
 export default function RestaurantsPage() {
   const router = useRouter();
@@ -21,25 +12,38 @@ export default function RestaurantsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // URLパラメータから初期フィルター値を取得
-  const initialFilters: FilterValues = {
+  const initialFilters: SearchFilters = {
     keyword: searchParams.get('keyword') || '',
     category: searchParams.get('category') || '',
     tag: searchParams.get('tag') || '',
-    station: searchParams.get('station') || '',
-    railway: searchParams.get('railway') || '',
-    minScore: searchParams.get('minScore') || '',
+    priceRange: searchParams.get('priceRange') || '',
+    isMorningRamen: searchParams.get('isMorningRamen') === 'true',
+    features: searchParams.get('features')?.split(',').filter(Boolean) || [],
+    minFlavorRichness: Number(searchParams.get('minFlavorRichness') || 0),
+    maxFlavorRichness: Number(searchParams.get('maxFlavorRichness') || 10),
+    sortBy: searchParams.get('sortBy') || 'score',
   };
 
+  const [filters, setFilters] = useState<SearchFilters>(initialFilters);
+
   // レストランデータを取得
-  const fetchRestaurants = async (filters: FilterValues) => {
+  const fetchRestaurants = async (searchFilters: SearchFilters) => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) {
-          params.append(key, value);
-        }
-      });
+
+      if (searchFilters.keyword) params.append('keyword', searchFilters.keyword);
+      if (searchFilters.category) params.append('category', searchFilters.category);
+      if (searchFilters.tag) params.append('tag', searchFilters.tag);
+      if (searchFilters.priceRange) params.append('priceRange', searchFilters.priceRange);
+      if (searchFilters.isMorningRamen) params.append('isMorningRamen', 'true');
+      if (searchFilters.features.length > 0)
+        params.append('features', searchFilters.features.join(','));
+      if (searchFilters.minFlavorRichness > 0)
+        params.append('minFlavorRichness', searchFilters.minFlavorRichness.toString());
+      if (searchFilters.maxFlavorRichness < 10)
+        params.append('maxFlavorRichness', searchFilters.maxFlavorRichness.toString());
+      if (searchFilters.sortBy) params.append('sortBy', searchFilters.sortBy);
 
       const response = await fetch(`/api/restaurants?${params.toString()}`);
       const data = await response.json();
@@ -56,18 +60,31 @@ export default function RestaurantsPage() {
 
   // 初回読み込み
   useEffect(() => {
-    fetchRestaurants(initialFilters);
+    fetchRestaurants(filters);
   }, []);
 
   // フィルター変更時の処理
-  const handleFilterChange = (filters: FilterValues) => {
+  const handleFiltersChange = (newFilters: SearchFilters) => {
+    setFilters(newFilters);
+  };
+
+  // 検索実行時の処理
+  const handleSearch = () => {
     // URLパラメータを更新
     const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        params.append(key, value);
-      }
-    });
+
+    if (filters.keyword) params.append('keyword', filters.keyword);
+    if (filters.category) params.append('category', filters.category);
+    if (filters.tag) params.append('tag', filters.tag);
+    if (filters.priceRange) params.append('priceRange', filters.priceRange);
+    if (filters.isMorningRamen) params.append('isMorningRamen', 'true');
+    if (filters.features.length > 0)
+      params.append('features', filters.features.join(','));
+    if (filters.minFlavorRichness > 0)
+      params.append('minFlavorRichness', filters.minFlavorRichness.toString());
+    if (filters.maxFlavorRichness < 10)
+      params.append('maxFlavorRichness', filters.maxFlavorRichness.toString());
+    if (filters.sortBy) params.append('sortBy', filters.sortBy);
 
     const queryString = params.toString();
     router.push(`/restaurants${queryString ? `?${queryString}` : ''}`);
@@ -76,125 +93,195 @@ export default function RestaurantsPage() {
     fetchRestaurants(filters);
   };
 
+  // 並び替え変更
+  const handleSortChange = (sortBy: string) => {
+    const newFilters = { ...filters, sortBy };
+    setFilters(newFilters);
+    fetchRestaurants(newFilters);
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">ラーメン店一覧</h1>
-        <p className="text-gray-600">
-          {isLoading ? '読み込み中...' : `${restaurants.length}件の店舗が見つかりました`}
-        </p>
-      </div>
-
-      {/* フィルター */}
-      <RestaurantFilter
-        onFilterChange={handleFilterChange}
-        initialFilters={initialFilters}
-      />
-
-      {/* ローディング */}
-      {isLoading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">読み込み中...</p>
-        </div>
-      )}
-
-      {/* 結果なし */}
-      {!isLoading && restaurants.length === 0 && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600 text-lg">
-            条件に一致する店舗が見つかりませんでした
+    <div className="min-h-screen bg-gray-50">
+      {/* ヘッダー */}
+      <div className="bg-white border-b sticky top-0 z-30">
+        <div className="container mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold text-gray-900">ラーメン店検索</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            {isLoading ? '読み込み中...' : `${restaurants.length}件の店舗`}
           </p>
         </div>
-      )}
+      </div>
 
-      {/* 店舗一覧 */}
-      {!isLoading && restaurants.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {restaurants.map((restaurant) => (
-          <div
-            key={restaurant.id}
-            className="border rounded-lg p-6 hover:shadow-lg transition-shadow"
-          >
-            <div className="mb-4">
-              <h2 className="text-2xl font-bold mb-2">{restaurant.name}</h2>
-              <p className="text-sm text-gray-500 mb-2">
-                {restaurant.name_kana}
-              </p>
-            </div>
+      {/* 検索フィルターパネル */}
+      <SearchFilterPanel
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onSearch={handleSearch}
+      />
 
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-3xl font-bold text-blue-600">
-                  {restaurant.average_score.toFixed(1)}
-                </span>
-                <span className="text-gray-500">/ 10.0</span>
-              </div>
-              <p className="text-sm text-gray-600">
-                {restaurant.review_count}件のレビュー
-              </p>
-            </div>
-
-            {restaurant.profile_description && (
-              <p className="text-sm text-gray-700 mb-4 line-clamp-3">
-                {restaurant.profile_description}
-              </p>
-            )}
-
-            <div className="mb-4">
-              <div className="flex items-start gap-2 text-sm">
-                <span className="text-gray-500">📍</span>
-                <div>
-                  <p className="font-medium">
-                    {restaurant.nearest_station}駅
-                  </p>
-                  <p className="text-gray-600">{restaurant.railway}</p>
-                </div>
-              </div>
-            </div>
-
-            {restaurant.restaurant_categories &&
-              restaurant.restaurant_categories.length > 0 && (
-                <div className="mb-3">
-                  <div className="flex flex-wrap gap-2">
-                    {restaurant.restaurant_categories.map((rc: any) => (
-                      <span
-                        key={rc.category.id}
-                        className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
-                      >
-                        {rc.category.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-            {restaurant.restaurant_tags &&
-              restaurant.restaurant_tags.length > 0 && (
-                <div className="mb-4">
-                  <div className="flex flex-wrap gap-2">
-                    {restaurant.restaurant_tags.map((rt: any) => (
-                      <span
-                        key={rt.tag.id}
-                        className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
-                      >
-                        {rt.tag.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-            <a
-              href={`/restaurants/${restaurant.id}`}
-              className="block w-full text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+      {/* 並び替え */}
+      <div className="bg-white border-b px-4 py-3">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          <span className="text-sm text-gray-600 whitespace-nowrap">並び替え:</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleSortChange('score')}
+              className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+                filters.sortBy === 'score'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+              }`}
             >
-              詳細を見る
-            </a>
+              評価順
+            </button>
+            <button
+              onClick={() => handleSortChange('cost_performance')}
+              className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+                filters.sortBy === 'cost_performance'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+              }`}
+            >
+              コスパ順
+            </button>
+            <button
+              onClick={() => handleSortChange('morning_ramen')}
+              className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+                filters.sortBy === 'morning_ramen'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+              }`}
+            >
+              朝ラー適性
+            </button>
           </div>
-        ))}
         </div>
-      )}
+      </div>
+
+      {/* コンテンツ */}
+      <div className="container mx-auto px-4 py-6">
+        {/* ローディング */}
+        {isLoading && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">読み込み中...</p>
+          </div>
+        )}
+
+        {/* 結果なし */}
+        {!isLoading && restaurants.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-lg border">
+            <p className="text-gray-600 text-lg">
+              条件に一致する店舗が見つかりませんでした
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              条件を変更して再度検索してください
+            </p>
+          </div>
+        )}
+
+        {/* 店舗一覧 */}
+        {!isLoading && restaurants.length > 0 && (
+          <div className="space-y-4">
+            {restaurants.map((restaurant) => (
+              <div
+                key={restaurant.id}
+                className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <div className="flex gap-4">
+                  {/* サムネイル */}
+                  {restaurant.thumbnail_url && (
+                    <div className="flex-shrink-0 w-24 h-24 bg-gray-200 rounded-lg overflow-hidden">
+                      <img
+                        src={restaurant.thumbnail_url}
+                        alt={restaurant.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* 情報 */}
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold text-gray-900 mb-1">
+                      {restaurant.name}
+                    </h2>
+
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-bold text-blue-600">
+                          {restaurant.average_score.toFixed(1)}
+                        </span>
+                        <span className="text-sm text-gray-500">/ 10.0</span>
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        {restaurant.review_count}件のレビュー
+                      </span>
+                    </div>
+
+                    {/* 価格帯・朝ラー・こってり度 */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {restaurant.price_range && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                          {restaurant.price_range}円
+                        </span>
+                      )}
+                      {restaurant.is_morning_ramen && (
+                        <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">
+                          朝ラー対応
+                        </span>
+                      )}
+                      {restaurant.avg_flavor_richness !== null &&
+                        restaurant.avg_flavor_richness !== undefined && (
+                          <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
+                            こってり度: {restaurant.avg_flavor_richness.toFixed(1)}
+                          </span>
+                        )}
+                    </div>
+
+                    {/* カテゴリ・タグ */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {restaurant.restaurant_categories?.map((rc: any) => (
+                        <span
+                          key={rc.category.id}
+                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs"
+                        >
+                          {rc.category.name}
+                        </span>
+                      ))}
+                      {restaurant.restaurant_tags?.slice(0, 2).map((rt: any) => (
+                        <span
+                          key={rt.tag.id}
+                          className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
+                        >
+                          {rt.tag.name}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* 駅情報 */}
+                    {restaurant.nearest_station && (
+                      <p className="text-sm text-gray-600">
+                        📍 {restaurant.nearest_station}駅
+                        {restaurant.railway && ` (${restaurant.railway})`}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* 詳細ボタン */}
+                  <div className="flex-shrink-0">
+                    <a
+                      href={`/restaurants/${restaurant.id}`}
+                      className="block px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
+                    >
+                      詳細
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
