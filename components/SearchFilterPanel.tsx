@@ -112,15 +112,15 @@ export default function SearchFilterPanel({
   };
 
   return (
-    <div className="bg-white">
+    <div className="bg-white shadow-md">
       {/* キーワード検索 */}
       <div className="p-4 border-b">
         <input
           type="text"
           value={filters.keyword}
           onChange={(e) => handleFilterChange('keyword', e.target.value)}
-          placeholder="店名・駅名で検索"
-          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+          placeholder="🔍 店名・駅名で検索"
+          className="w-full px-4 py-3 border-2 border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 text-gray-900 font-medium shadow-sm"
         />
       </div>
 
@@ -129,44 +129,53 @@ export default function SearchFilterPanel({
         <div className="flex gap-2 p-4 whitespace-nowrap">
           <button
             onClick={() => setActivePanel('taste')}
-            className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors"
+            className={`px-4 py-2 font-semibold text-sm rounded-lg transition-colors ${
+              (filters.category || filters.tag)
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+            }`}
           >
             味・ジャンル
-            {(filters.category || filters.tag) && (
-              <span className="ml-2 text-blue-600">●</span>
-            )}
           </button>
           <button
             onClick={() => setActivePanel('price')}
-            className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors"
+            className={`px-4 py-2 font-semibold text-sm rounded-lg transition-colors ${
+              filters.priceRange
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+            }`}
           >
             価格帯
-            {filters.priceRange && <span className="ml-2 text-blue-600">●</span>}
           </button>
           <button
             onClick={() => setActivePanel('time')}
-            className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors"
+            className={`px-4 py-2 font-semibold text-sm rounded-lg transition-colors ${
+              filters.isMorningRamen
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+            }`}
           >
             時間帯
-            {filters.isMorningRamen && <span className="ml-2 text-blue-600">●</span>}
           </button>
           <button
             onClick={() => setActivePanel('features')}
-            className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors"
+            className={`px-4 py-2 font-semibold text-sm rounded-lg transition-colors ${
+              filters.features.length > 0
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+            }`}
           >
             店舗特徴
-            {filters.features.length > 0 && (
-              <span className="ml-2 text-blue-600">●</span>
-            )}
           </button>
           <button
             onClick={() => setActivePanel('richness')}
-            className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors"
+            className={`px-4 py-2 font-semibold text-sm rounded-lg transition-colors ${
+              (filters.minFlavorRichness > 0 || filters.maxFlavorRichness < 10)
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+            }`}
           >
             こってり度
-            {(filters.minFlavorRichness > 0 || filters.maxFlavorRichness < 10) && (
-              <span className="ml-2 text-blue-600">●</span>
-            )}
           </button>
         </div>
       </div>
@@ -238,7 +247,7 @@ export default function SearchFilterPanel({
       <div className="p-4">
         <button
           onClick={onSearch}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          className="w-full bg-pink-500 text-white py-3 rounded-lg hover:bg-pink-600 transition-colors font-bold shadow-md"
         >
           この条件で検索
         </button>

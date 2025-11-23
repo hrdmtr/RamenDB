@@ -101,12 +101,12 @@ export default function RestaurantsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-orange-50">
       {/* ヘッダー */}
-      <div className="bg-white border-b sticky top-0 z-30">
+      <div className="bg-orange-500 border-b sticky top-0 z-30 shadow-md">
         <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">ラーメン店検索</h1>
-          <p className="text-sm text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-white">ラーメン店検索</h1>
+          <p className="text-sm font-medium text-white/90 mt-1">
             {isLoading ? '読み込み中...' : `${restaurants.length}件の店舗`}
           </p>
         </div>
@@ -120,36 +120,36 @@ export default function RestaurantsPage() {
       />
 
       {/* 並び替え */}
-      <div className="bg-white border-b px-4 py-3">
+      <div className="bg-white border-b px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2 overflow-x-auto">
-          <span className="text-sm text-gray-600 whitespace-nowrap">並び替え:</span>
+          <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">並び替え:</span>
           <div className="flex gap-2">
             <button
               onClick={() => handleSortChange('score')}
-              className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                 filters.sortBy === 'score'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                  ? 'bg-pink-500 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               評価順
             </button>
             <button
               onClick={() => handleSortChange('cost_performance')}
-              className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                 filters.sortBy === 'cost_performance'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                  ? 'bg-pink-500 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               コスパ順
             </button>
             <button
               onClick={() => handleSortChange('morning_ramen')}
-              className={`px-3 py-1 rounded-full text-sm whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                 filters.sortBy === 'morning_ramen'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                  ? 'bg-pink-500 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               朝ラー適性
@@ -163,18 +163,18 @@ export default function RestaurantsPage() {
         {/* ローディング */}
         {isLoading && (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-gray-600">読み込み中...</p>
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-orange-300 border-t-pink-500 shadow-lg"></div>
+            <p className="mt-4 text-lg font-semibold text-gray-700">読み込み中...</p>
           </div>
         )}
 
         {/* 結果なし */}
         {!isLoading && restaurants.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-lg border">
-            <p className="text-gray-600 text-lg">
+          <div className="text-center py-12 bg-white rounded-xl border-2 border-orange-200 shadow-md">
+            <p className="text-gray-700 text-xl font-semibold">
               条件に一致する店舗が見つかりませんでした
             </p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-base text-gray-500 mt-2">
               条件を変更して再度検索してください
             </p>
           </div>
@@ -183,15 +183,15 @@ export default function RestaurantsPage() {
         {/* 店舗一覧 */}
         {!isLoading && restaurants.length > 0 && (
           <div className="space-y-4">
-            {restaurants.map((restaurant) => (
+            {restaurants.map((restaurant, index) => (
               <div
                 key={restaurant.id}
-                className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="bg-white border-2 border-orange-200 rounded-xl p-5 hover:shadow-lg transition-all duration-200 shadow-sm"
               >
                 <div className="flex gap-4">
                   {/* サムネイル */}
                   {restaurant.thumbnail_url && (
-                    <div className="flex-shrink-0 w-24 h-24 bg-gray-200 rounded-lg overflow-hidden">
+                    <div className="flex-shrink-0 w-28 h-28 bg-gradient-to-br from-orange-200 to-pink-200 rounded-lg overflow-hidden border-2 border-orange-300 shadow-md">
                       <img
                         src={restaurant.thumbnail_url}
                         alt={restaurant.name}
@@ -202,18 +202,18 @@ export default function RestaurantsPage() {
 
                   {/* 情報 */}
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-bold text-gray-900 mb-1">
-                      {restaurant.name}
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">
+                      🍜 {restaurant.name}
                     </h2>
 
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-bold text-blue-600">
+                      <div className="flex items-baseline gap-1 bg-pink-500 px-3 py-1 rounded-full shadow-sm">
+                        <span className="text-xl font-bold text-white">
                           {restaurant.average_score.toFixed(1)}
                         </span>
-                        <span className="text-sm text-gray-500">/ 10.0</span>
+                        <span className="text-xs font-semibold text-white/90">/ 10.0</span>
                       </div>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm font-medium text-gray-600">
                         {restaurant.review_count}件のレビュー
                       </span>
                     </div>
@@ -221,18 +221,18 @@ export default function RestaurantsPage() {
                     {/* 価格帯・朝ラー・こってり度 */}
                     <div className="flex flex-wrap gap-2 mb-2">
                       {restaurant.price_range && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                        <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
                           {restaurant.price_range}円
                         </span>
                       )}
                       {restaurant.is_morning_ramen && (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">
+                        <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
                           朝ラー対応
                         </span>
                       )}
                       {restaurant.avg_flavor_richness !== null &&
                         restaurant.avg_flavor_richness !== undefined && (
-                          <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
+                          <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
                             こってり度: {restaurant.avg_flavor_richness.toFixed(1)}
                           </span>
                         )}
@@ -243,7 +243,7 @@ export default function RestaurantsPage() {
                       {restaurant.restaurant_categories?.map((rc: any) => (
                         <span
                           key={rc.category.id}
-                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs"
+                          className="px-2 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold"
                         >
                           {rc.category.name}
                         </span>
@@ -251,7 +251,7 @@ export default function RestaurantsPage() {
                       {restaurant.restaurant_tags?.slice(0, 2).map((rt: any) => (
                         <span
                           key={rt.tag.id}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
+                          className="px-2 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold"
                         >
                           {rt.tag.name}
                         </span>
@@ -260,7 +260,7 @@ export default function RestaurantsPage() {
 
                     {/* 駅情報 */}
                     {restaurant.nearest_station && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm font-semibold text-gray-600">
                         📍 {restaurant.nearest_station}駅
                         {restaurant.railway && ` (${restaurant.railway})`}
                       </p>
@@ -271,9 +271,9 @@ export default function RestaurantsPage() {
                   <div className="flex-shrink-0">
                     <a
                       href={`/restaurants/${restaurant.id}`}
-                      className="block px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
+                      className="block px-5 py-2 bg-pink-500 text-white text-sm font-bold rounded-lg hover:bg-pink-600 transition-colors whitespace-nowrap shadow-md"
                     >
-                      詳細
+                      詳細 →
                     </a>
                   </div>
                 </div>
