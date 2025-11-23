@@ -4,19 +4,34 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Modal from './Modal';
 import ReviewForm from './ReviewForm';
+import QuickRatingForm from './QuickRatingForm';
 
 interface ReviewSectionProps {
   restaurantId: string;
   reviews: any[];
 }
 
+type ReviewMode = 'select' | 'quick' | 'detailed';
+
 export default function ReviewSection({ restaurantId, reviews }: ReviewSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reviewMode, setReviewMode] = useState<ReviewMode>('select');
   const router = useRouter();
 
   const handleSuccess = () => {
     setIsModalOpen(false);
+    setReviewMode('select');
     router.refresh(); // ページをリフレッシュしてレビューを再取得
+  };
+
+  const handleOpenModal = () => {
+    setReviewMode('select');
+    setIsModalOpen(true);
+  };
+
+  const handleCancel = () => {
+    setReviewMode('select');
+    setIsModalOpen(false);
   };
 
   return (
@@ -27,7 +42,7 @@ export default function ReviewSection({ restaurantId, reviews }: ReviewSectionPr
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-500 mb-4">レビューはまだありません</p>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleOpenModal}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
           >
             レビューを投稿する
@@ -205,7 +220,7 @@ export default function ReviewSection({ restaurantId, reviews }: ReviewSectionPr
           {/* レビュー投稿ボタン */}
           <div className="pt-6 border-t">
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleOpenModal}
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               レビューを投稿する
@@ -217,14 +232,78 @@ export default function ReviewSection({ restaurantId, reviews }: ReviewSectionPr
       {/* レビュー投稿モーダル */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="レビューを投稿"
+        onClose={handleCancel}
+        title={
+          reviewMode === 'select'
+            ? 'レビューを投稿'
+            : reviewMode === 'quick'
+            ? '簡易評価'
+            : '本気レビュー'
+        }
       >
-        <ReviewForm
-          restaurantId={restaurantId}
-          onSuccess={handleSuccess}
-          onCancel={() => setIsModalOpen(false)}
-        />
+        {reviewMode === 'select' ? (
+          // レビュータイプ選択
+          <div className="space-y-4">
+            <p className="text-gray-600 mb-6">
+              投稿するレビューのタイプを選択してください
+            </p>
+
+            <button
+              onClick={() => setReviewMode('quick')}
+              className="w-full p-6 border-2 border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all text-left"
+            >
+              <div className="flex items-center gap-4">
+                <span className="text-4xl">⭐</span>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    簡易評価する
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    5項目を評価（1分で完了）
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setReviewMode('detailed')}
+              className="w-full p-6 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+            >
+              <div className="flex items-center gap-4">
+                <span className="text-4xl">📝</span>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    本気レビューを書く
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    詳細なコメント + 画像
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={handleCancel}
+              className="w-full py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              キャンセル
+            </button>
+          </div>
+        ) : reviewMode === 'quick' ? (
+          // 簡易評価フォーム
+          <QuickRatingForm
+            restaurantId={restaurantId}
+            onSuccess={handleSuccess}
+            onCancel={handleCancel}
+          />
+        ) : (
+          // 本気レビューフォーム
+          <ReviewForm
+            restaurantId={restaurantId}
+            onSuccess={handleSuccess}
+            onCancel={handleCancel}
+          />
+        )}
       </Modal>
     </div>
   );
