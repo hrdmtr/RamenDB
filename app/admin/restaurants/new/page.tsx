@@ -17,6 +17,7 @@ export default function NewRestaurantPage() {
     website: '',
     twitter: '',
     instagram: '',
+    shortDescription: '',
     profileDescription: '',
     thumbnailUrl: '',
   });
@@ -106,6 +107,7 @@ export default function NewRestaurantPage() {
           website: formData.website || null,
           twitter: formData.twitter || null,
           instagram: formData.instagram || null,
+          short_description: formData.shortDescription || null,
           profile_description: formData.profileDescription || null,
           thumbnail_url: thumbnailUrl || null,
         }),
@@ -238,6 +240,28 @@ export default function NewRestaurantPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-300">
               任意項目
             </h2>
+
+            {/* キャッチコピー */}
+            <div className="mb-6">
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                キャッチコピー（1行紹介）
+              </label>
+              <p className="text-xs text-gray-600 mb-2">
+                一覧ページで表示される短い紹介文です（最大100文字）
+              </p>
+              <input
+                type="text"
+                name="shortDescription"
+                value={formData.shortDescription}
+                onChange={handleChange}
+                maxLength={100}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
+                placeholder="例: 新鮮ホルモン・焼肉がリーズナブルに！早朝レモンサワー飲み放題500円♪"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {formData.shortDescription.length}/100文字
+              </p>
+            </div>
 
             {/* 店舗代表画像 */}
             <div className="mb-6">

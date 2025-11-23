@@ -284,7 +284,14 @@ export default function RestaurantsPageContent() {
                         {restaurant.name}
                       </h2>
 
-                      {/* 一言説明 */}
+                      {/* キャッチコピー（1行紹介） */}
+                      {restaurant.short_description && (
+                        <p className="text-sm text-gray-700 font-semibold mb-2 line-clamp-1">
+                          {restaurant.short_description}
+                        </p>
+                      )}
+
+                      {/* 詳細説明（あれば） */}
                       {restaurant.profile_description && (
                         <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                           {restaurant.profile_description}

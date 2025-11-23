@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       website,
       twitter,
       instagram,
+      short_description,
       profile_description,
       thumbnail_url,
     } = body;
@@ -75,6 +76,7 @@ export async function POST(request: Request) {
         website: website || null,
         twitter: twitter || null,
         instagram: instagram || null,
+        short_description: short_description || null,
         profile_description: profile_description || null,
         thumbnail_url: thumbnail_url || null,
         average_score: 0,

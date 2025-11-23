@@ -60,24 +60,26 @@ export interface Review {
   id: string;
   restaurantId: string;
   userId: string;
-  score: number;
-  // 詳細項目（必須）
-  tasteComment: string;              // 味についての評価
-  atmosphereType: 'quiet' | 'lively' | 'normal' | 'other'; // 雰囲気タイプ
-  atmosphereComment?: string;        // 店の雰囲気（補足）
-  serviceComment: string;            // 接客態度
-  costPerformanceComment: string;    // コストパフォーマンス
-  accessibilityComment: string;      // 店の見つけやすさ
-  selfServiceType: 'full_self' | 'partial_self' | 'full_service'; // セルフサービス種類
-  selfServiceNote?: string;          // セルフサービス補足
-  servingTime: 'under_3' | '3_to_7' | '7_to_15' | 'over_15'; // 提供時間
-  servingTimeNote?: string;          // 提供時間補足
-  flavorRichness?: number;           // 味の濃さ（0:あっさり 〜 10:こってり）
-  // 任意項目
-  generalComment?: string;           // 総合コメント（旧comment）
+  score: number; // 5軸の平均（自動計算）
+
+  // レビュータイプ
+  reviewType: 'quick' | 'detailed'; // 簡易評価 or 本気レビュー
+
+  // 5軸評価（必須）
+  scoreTaste: number;        // 味（0.0〜10.0）
+  scorePortion: number;      // 量（0.0〜10.0）
+  scorePrice: number;        // 価格/コスパ（0.0〜10.0）
+  scoreService: number;      // 接客（0.0〜10.0）
+  scoreCleanliness: number;  // 衛生（0.0〜10.0）
+
+  // コメント（簡易評価=任意、本気レビュー=必須）
+  comment?: string;
+
+  // 本気レビューのみ
   visitDate?: string;
   images?: string[];
   review_images?: ReviewImage[];     // レビュー画像（Supabaseリレーション用）
+
   createdAt: string;
   updatedAt: string;
 }
