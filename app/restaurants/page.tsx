@@ -2,8 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Restaurant } from '@/types';
 import SearchFilterPanel, { SearchFilters } from '@/components/SearchFilterPanel';
+
+// 地図コンポーネントを動的インポート（SSR無効化）
+const RestaurantMap = dynamic(() => import('@/components/RestaurantMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
+      <p className="text-gray-500">地図を読み込み中...</p>
+    </div>
+  ),
+});
 
 export default function RestaurantsPage() {
   const router = useRouter();
@@ -180,10 +191,12 @@ export default function RestaurantsPage() {
           </div>
         )}
 
-        {/* 店舗一覧 */}
+        {/* 店舗一覧と地図 */}
         {!isLoading && restaurants.length > 0 && (
-          <div className="space-y-4">
-            {restaurants.map((restaurant) => (
+          <div className="flex gap-4">
+            {/* 左側: 店舗リスト */}
+            <div className="flex-1 space-y-4">
+              {restaurants.map((restaurant) => (
               <div
                 key={restaurant.id}
                 className="bg-white border rounded-lg hover:shadow-lg transition-shadow"
@@ -279,7 +292,13 @@ export default function RestaurantsPage() {
                   </div>
                 </a>
               </div>
-            ))}
+              ))}
+            </div>
+
+            {/* 右側: 地図 */}
+            <div className="w-96 sticky top-24 h-[calc(100vh-7rem)]">
+              <RestaurantMap restaurants={restaurants} />
+            </div>
           </div>
         )}
       </div>
