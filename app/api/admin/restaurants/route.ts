@@ -10,12 +10,18 @@ export async function POST(request: Request) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+    console.log('環境変数チェック:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseAnonKey,
+      urlPrefix: supabaseUrl?.substring(0, 20),
+    });
+
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('Supabase環境変数が設定されていません');
       return NextResponse.json(
         {
           success: false,
-          error: 'サーバー設定エラー',
+          error: 'サーバー設定エラー: Supabase環境変数が見つかりません',
         },
         { status: 500 }
       );
@@ -23,8 +29,11 @@ export async function POST(request: Request) {
 
     // Supabaseクライアントを作成
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    console.log('Supabaseクライアント作成成功');
 
     const body = await request.json();
+    console.log('リクエストボディ受信:', { hasName: !!body.name, hasKana: !!body.name_kana });
+
     const {
       name,
       name_kana,
@@ -40,6 +49,7 @@ export async function POST(request: Request) {
 
     // バリデーション
     if (!name || !name_kana || !address || !nearest_station || !railway) {
+      console.error('バリデーションエラー:', { name, name_kana, address, nearest_station, railway });
       return NextResponse.json(
         {
           success: false,
@@ -48,6 +58,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    console.log('バリデーション成功、データベースへ挿入開始');
 
     // 店舗を新規作成
     const { data: restaurant, error } = await supabase
@@ -70,15 +82,22 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      console.error('店舗作成エラー:', error);
+      console.error('Supabaseエラー詳細:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
       return NextResponse.json(
         {
           success: false,
-          error: error.message || 'データベースエラー',
+          error: `データベースエラー: ${error.message}`,
         },
         { status: 500 }
       );
     }
+
+    console.log('店舗作成成功:', restaurant?.id);
 
     return NextResponse.json({
       success: true,
