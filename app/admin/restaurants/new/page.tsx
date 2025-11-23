@@ -94,7 +94,7 @@ export default function NewRestaurantPage() {
 
             {/* 店名 */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-900 mb-2">
                 店名 <span className="text-red-500">*</span>
               </label>
               <input
@@ -103,14 +103,14 @@ export default function NewRestaurantPage() {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                 placeholder="例: ラーメン二郎 三田本店"
               />
             </div>
 
             {/* 店名（かな） */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-900 mb-2">
                 店名（かな） <span className="text-red-500">*</span>
               </label>
               <input
@@ -119,14 +119,14 @@ export default function NewRestaurantPage() {
                 value={formData.nameKana}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                 placeholder="例: らーめんじろう みたほんてん"
               />
             </div>
 
             {/* 住所 */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-900 mb-2">
                 住所 <span className="text-red-500">*</span>
               </label>
               <input
@@ -135,7 +135,7 @@ export default function NewRestaurantPage() {
                 value={formData.address}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                 placeholder="例: 東京都港区三田2-16-4"
               />
             </div>
@@ -143,7 +143,7 @@ export default function NewRestaurantPage() {
             {/* 最寄駅 */}
             <div className="mb-6 grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-900 mb-2">
                   最寄駅 <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -152,12 +152,12 @@ export default function NewRestaurantPage() {
                   value={formData.nearestStation}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                   placeholder="例: 三田"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-900 mb-2">
                   路線 <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -166,7 +166,7 @@ export default function NewRestaurantPage() {
                   value={formData.railway}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                   placeholder="例: 都営三田線"
                 />
               </div>
@@ -181,7 +181,7 @@ export default function NewRestaurantPage() {
 
             {/* 電話番号 */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-900 mb-2">
                 電話番号
               </label>
               <input
@@ -189,14 +189,14 @@ export default function NewRestaurantPage() {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                 placeholder="例: 03-1234-5678"
               />
             </div>
 
             {/* ウェブサイト */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-900 mb-2">
                 ウェブサイト
               </label>
               <input
@@ -204,7 +204,7 @@ export default function NewRestaurantPage() {
                 name="website"
                 value={formData.website}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                 placeholder="例: https://example.com"
               />
             </div>
@@ -212,7 +212,7 @@ export default function NewRestaurantPage() {
             {/* SNS */}
             <div className="mb-6 grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-900 mb-2">
                   Twitter
                 </label>
                 <input
@@ -220,12 +220,12 @@ export default function NewRestaurantPage() {
                   name="twitter"
                   value={formData.twitter}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                   placeholder="例: @username"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-gray-900 mb-2">
                   Instagram
                 </label>
                 <input
@@ -233,7 +233,7 @@ export default function NewRestaurantPage() {
                   name="instagram"
                   value={formData.instagram}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                   placeholder="例: username"
                 />
               </div>
@@ -241,7 +241,7 @@ export default function NewRestaurantPage() {
 
             {/* 店舗説明 */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-gray-900 mb-2">
                 店舗説明
               </label>
               <textarea
@@ -249,7 +249,7 @@ export default function NewRestaurantPage() {
                 value={formData.profileDescription}
                 onChange={handleChange}
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 placeholder-gray-400"
                 placeholder="店舗の特徴や雰囲気を簡単に説明してください"
               />
             </div>
