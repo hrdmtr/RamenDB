@@ -15,13 +15,13 @@ L.Icon.Default.mergeOptions({
 });
 
 interface RestaurantMapProps {
-  restaurants: Restaurant[];
+  restaurants: any[]; // データベースはスネークケースを使用
   center?: [number, number];
   zoom?: number;
 }
 
 // 地図の中心を自動調整するコンポーネント
-function MapBounds({ restaurants }: { restaurants: Restaurant[] }) {
+function MapBounds({ restaurants }: { restaurants: any[] }) {
   const map = useMap();
 
   useEffect(() => {

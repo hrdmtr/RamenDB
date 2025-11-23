@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 import { Restaurant } from '@/types';
 import SearchFilterPanel, { SearchFilters } from '@/components/SearchFilterPanel';
 
+// 動的レンダリングを強制（useSearchParamsのため）
+export const dynamic = 'force-dynamic';
+
 // 地図コンポーネントを動的インポート（SSR無効化）
-const RestaurantMap = dynamic(() => import('@/components/RestaurantMap'), {
+const RestaurantMap = dynamicImport(() => import('@/components/RestaurantMap'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
@@ -19,7 +22,7 @@ const RestaurantMap = dynamic(() => import('@/components/RestaurantMap'), {
 export default function RestaurantsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [restaurants, setRestaurants] = useState<any[]>([]); // データベースはスネークケースを使用
   const [isLoading, setIsLoading] = useState(true);
 
   // URLパラメータから初期フィルター値を取得
@@ -206,30 +209,63 @@ export default function RestaurantsPage() {
                     {/* 画像エリア（4枚表示） */}
                     <div className="flex-shrink-0">
                       <div className="flex gap-1.5">
-                        {/* メイン画像（大） */}
-                        {restaurant.thumbnail_url && (
-                          <div className="w-44 h-32 bg-gray-200 rounded overflow-hidden">
-                            <img
-                              src={restaurant.thumbnail_url}
-                              alt={restaurant.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        {/* サブ画像3枚（小・縦並び） */}
-                        <div className="flex flex-col gap-1.5">
-                          {[1, 2, 3].map((i) => (
-                            <div key={i} className="w-16 h-[calc((128px-12px)/3)] bg-gray-100 rounded overflow-hidden">
-                              {restaurant.thumbnail_url && (
+                        {(() => {
+                          // レビュー画像を収集
+                          const allImages: string[] = [];
+                          restaurant.reviews?.forEach((review: any) => {
+                            review.review_images?.forEach((img: any) => {
+                              allImages.push(img.image_url);
+                            });
+                          });
+
+                          // サムネイルも含める
+                          if (restaurant.thumbnail_url) {
+                            allImages.unshift(restaurant.thumbnail_url);
+                          }
+
+                          // 最大4枚
+                          const displayImages = allImages.slice(0, 4);
+
+                          // 画像がない場合はプレースホルダー
+                          if (displayImages.length === 0) {
+                            return (
+                              <div className="w-44 h-32 bg-gray-200 rounded overflow-hidden flex items-center justify-center">
+                                <span className="text-gray-400 text-sm">No Image</span>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <>
+                              {/* メイン画像（大） */}
+                              <div className="w-44 h-32 bg-gray-200 rounded overflow-hidden">
                                 <img
-                                  src={restaurant.thumbnail_url}
-                                  alt={`${restaurant.name} ${i}`}
-                                  className="w-full h-full object-cover opacity-50"
+                                  src={displayImages[0]}
+                                  alt={restaurant.name}
+                                  className="w-full h-full object-cover"
                                 />
+                              </div>
+                              {/* サブ画像3枚（小・縦並び） */}
+                              {displayImages.length > 1 && (
+                                <div className="flex flex-col gap-1.5">
+                                  {displayImages.slice(1, 4).map((img, i) => (
+                                    <div key={i} className="w-16 h-[calc((128px-12px)/3)] bg-gray-100 rounded overflow-hidden">
+                                      <img
+                                        src={img}
+                                        alt={`${restaurant.name} ${i + 2}`}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                  ))}
+                                  {/* 画像が足りない場合は空枠 */}
+                                  {[...Array(Math.max(0, 3 - displayImages.slice(1).length))].map((_, i) => (
+                                    <div key={`empty-${i}`} className="w-16 h-[calc((128px-12px)/3)] bg-gray-100 rounded"></div>
+                                  ))}
+                                </div>
                               )}
-                            </div>
-                          ))}
-                        </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
 

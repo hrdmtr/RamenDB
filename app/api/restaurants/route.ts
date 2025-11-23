@@ -44,6 +44,13 @@ export async function GET(request: Request) {
             name,
             category
           )
+        ),
+        reviews (
+          review_images (
+            id,
+            image_url,
+            created_at
+          )
         )
       `);
 

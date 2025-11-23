@@ -68,15 +68,17 @@ const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
 export default async function RestaurantDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const restaurant = await getRestaurant(params.id);
+  const { id } = await params;
+  const restaurantData = await getRestaurant(id);
 
-  if (!restaurant) {
+  if (!restaurantData) {
     notFound();
   }
 
-  const reviews = await getReviews(params.id);
+  const reviews = await getReviews(id);
+  const restaurant = restaurantData as any; // データベースはスネークケースを使用
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -261,7 +263,7 @@ export default async function RestaurantDetailPage({
         )}
 
         {/* レビューセクション */}
-        <ReviewSection restaurantId={params.id} reviews={reviews} />
+        <ReviewSection restaurantId={id} reviews={reviews} />
       </div>
 
       {/* 戻るボタン */}

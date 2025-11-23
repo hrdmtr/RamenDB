@@ -27,6 +27,7 @@ export interface Restaurant {
   thumbnailUrl?: string;                                   // サムネイル画像URL
   avgFlavorRichness?: number;                              // 味の濃さ平均（0-10）
   features?: Feature[];                                    // 店舗特徴（券売機、駐車場など）
+  reviews?: Review[];                                      // レビュー（画像取得用）
   createdAt: string;
   updatedAt: string;
 }
@@ -76,8 +77,18 @@ export interface Review {
   generalComment?: string;           // 総合コメント（旧comment）
   visitDate?: string;
   images?: string[];
+  review_images?: ReviewImage[];     // レビュー画像（Supabaseリレーション用）
   createdAt: string;
   updatedAt: string;
+}
+
+// Review Image types
+export interface ReviewImage {
+  id: string;
+  reviewId: string;
+  imageUrl: string;
+  caption?: string;
+  createdAt: string;
 }
 
 // User types
