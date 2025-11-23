@@ -4,13 +4,14 @@ import { supabase } from '@/lib/supabase';
 // レビュー削除
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { error } = await supabase
       .from('reviews')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       throw error;

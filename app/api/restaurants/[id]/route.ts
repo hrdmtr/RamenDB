@@ -4,9 +4,10 @@ import { supabase } from '@/lib/supabase';
 // 店舗詳細取得
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { data: restaurant, error } = await supabase
       .from('restaurants')
       .select(`
@@ -26,7 +27,7 @@ export async function GET(
           )
         )
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (error || !restaurant) {
@@ -58,9 +59,10 @@ export async function GET(
 // 店舗情報更新
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       name,
@@ -101,7 +103,7 @@ export async function PUT(
         instagram: instagram || null,
         profile_description: profile_description || null,
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 
@@ -128,13 +130,14 @@ export async function PUT(
 // 店舗削除
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { error } = await supabase
       .from('restaurants')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       throw error;

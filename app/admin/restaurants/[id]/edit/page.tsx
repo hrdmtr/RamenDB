@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function EditRestaurantPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -32,7 +33,7 @@ export default function EditRestaurantPage({
 
   const fetchRestaurant = async () => {
     try {
-      const response = await fetch(`/api/restaurants/${params.id}`);
+      const response = await fetch(`/api/restaurants/${id}`);
       const data = await response.json();
 
       if (data.success) {
@@ -65,7 +66,7 @@ export default function EditRestaurantPage({
     setError('');
 
     try {
-      const response = await fetch(`/api/restaurants/${params.id}`, {
+      const response = await fetch(`/api/restaurants/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
