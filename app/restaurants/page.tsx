@@ -183,100 +183,101 @@ export default function RestaurantsPage() {
         {/* 店舗一覧 */}
         {!isLoading && restaurants.length > 0 && (
           <div className="space-y-4">
-            {restaurants.map((restaurant, index) => (
+            {restaurants.map((restaurant) => (
               <div
                 key={restaurant.id}
-                className="bg-white border-2 border-orange-200 rounded-xl p-5 hover:shadow-lg transition-all duration-200 shadow-sm"
+                className="bg-white border rounded-lg hover:shadow-lg transition-shadow"
               >
-                <div className="flex gap-4">
-                  {/* サムネイル */}
-                  {restaurant.thumbnail_url && (
-                    <div className="flex-shrink-0 w-28 h-28 bg-gradient-to-br from-orange-200 to-pink-200 rounded-lg overflow-hidden border-2 border-orange-300 shadow-md">
-                      <img
-                        src={restaurant.thumbnail_url}
-                        alt={restaurant.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-
-                  {/* 情報 */}
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-bold text-gray-800 mb-2">
-                      🍜 {restaurant.name}
-                    </h2>
-
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="flex items-baseline gap-1 bg-pink-500 px-3 py-1 rounded-full shadow-sm">
-                        <span className="text-xl font-bold text-white">
-                          {restaurant.average_score.toFixed(1)}
-                        </span>
-                        <span className="text-xs font-semibold text-white/90">/ 10.0</span>
+                <a href={`/restaurants/${restaurant.id}`} className="block">
+                  <div className="flex gap-4 p-4">
+                    {/* 画像エリア（4枚表示） */}
+                    <div className="flex-shrink-0">
+                      <div className="flex gap-1">
+                        {/* メイン画像（大） */}
+                        {restaurant.thumbnail_url && (
+                          <div className="w-32 h-24 bg-gray-200 rounded overflow-hidden">
+                            <img
+                              src={restaurant.thumbnail_url}
+                              alt={restaurant.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        {/* サブ画像3枚（小・縦並び） */}
+                        <div className="flex flex-col gap-1">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="w-12 h-[calc((96px-8px)/3)] bg-gray-100 rounded overflow-hidden">
+                              {restaurant.thumbnail_url && (
+                                <img
+                                  src={restaurant.thumbnail_url}
+                                  alt={`${restaurant.name} ${i}`}
+                                  className="w-full h-full object-cover opacity-50"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <span className="text-sm font-medium text-gray-600">
-                        {restaurant.review_count}件のレビュー
-                      </span>
                     </div>
 
-                    {/* 価格帯・朝ラー・こってり度 */}
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {restaurant.price_range && (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
-                          {restaurant.price_range}円
-                        </span>
+                    {/* 情報エリア */}
+                    <div className="flex-1 min-w-0">
+                      {/* 店名 */}
+                      <h2 className="text-lg font-bold text-gray-900 mb-1">
+                        {restaurant.name}
+                      </h2>
+
+                      {/* 一言説明 */}
+                      {restaurant.profile_description && (
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                          {restaurant.profile_description}
+                        </p>
                       )}
-                      {restaurant.is_morning_ramen && (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
-                          朝ラー対応
+
+                      {/* 評価 */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xl font-bold text-orange-500">
+                            {restaurant.average_score.toFixed(2)}
+                          </span>
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          ({restaurant.review_count})
                         </span>
-                      )}
-                      {restaurant.avg_flavor_richness !== null &&
-                        restaurant.avg_flavor_richness !== undefined && (
-                          <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
-                            こってり度: {restaurant.avg_flavor_richness.toFixed(1)}
+                      </div>
+
+                      {/* カテゴリ・タグ */}
+                      <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                        {restaurant.restaurant_categories?.map((rc: any) => (
+                          <span key={rc.category.id}>
+                            {rc.category.name}
+                          </span>
+                        ))}
+                        {restaurant.restaurant_tags?.slice(0, 2).map((rt: any, idx: number) => (
+                          <span key={rt.tag.id}>
+                            {idx > 0 && '・'}
+                            {rt.tag.name}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* その他情報 */}
+                      <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
+                        {restaurant.price_range && (
+                          <span>¥{restaurant.price_range}</span>
+                        )}
+                        {restaurant.nearest_station && (
+                          <span>
+                            {restaurant.nearest_station}駅
                           </span>
                         )}
+                        {restaurant.is_morning_ramen && (
+                          <span className="text-orange-600 font-semibold">朝ラー対応</span>
+                        )}
+                      </div>
                     </div>
-
-                    {/* カテゴリ・タグ */}
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {restaurant.restaurant_categories?.map((rc: any) => (
-                        <span
-                          key={rc.category.id}
-                          className="px-2 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold"
-                        >
-                          {rc.category.name}
-                        </span>
-                      ))}
-                      {restaurant.restaurant_tags?.slice(0, 2).map((rt: any) => (
-                        <span
-                          key={rt.tag.id}
-                          className="px-2 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold"
-                        >
-                          {rt.tag.name}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* 駅情報 */}
-                    {restaurant.nearest_station && (
-                      <p className="text-sm font-semibold text-gray-600">
-                        📍 {restaurant.nearest_station}駅
-                        {restaurant.railway && ` (${restaurant.railway})`}
-                      </p>
-                    )}
                   </div>
-
-                  {/* 詳細ボタン */}
-                  <div className="flex-shrink-0">
-                    <a
-                      href={`/restaurants/${restaurant.id}`}
-                      className="block px-5 py-2 bg-pink-500 text-white text-sm font-bold rounded-lg hover:bg-pink-600 transition-colors whitespace-nowrap shadow-md"
-                    >
-                      詳細 →
-                    </a>
-                  </div>
-                </div>
+                </a>
               </div>
             ))}
           </div>
