@@ -81,11 +81,15 @@ export default function NewRestaurantPage() {
       // 画像がある場合は先にアップロード
       let thumbnailUrl = formData.thumbnailUrl;
       if (thumbnailFile) {
+        console.log('画像ファイルをアップロード中...');
         const uploadedUrl = await uploadThumbnail();
+        console.log('アップロード完了:', uploadedUrl);
         if (uploadedUrl) {
           thumbnailUrl = uploadedUrl;
         }
       }
+
+      console.log('店舗作成リクエスト送信:', { thumbnailUrl });
 
       const response = await fetch('/api/admin/restaurants', {
         method: 'POST',
