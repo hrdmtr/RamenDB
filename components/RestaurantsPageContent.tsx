@@ -323,6 +323,17 @@ export default function RestaurantsPageContent() {
                     </div>
                   </div>
                 </a>
+
+                {/* レビュー追加ボタン */}
+                <div className="px-4 pb-4">
+                  <a
+                    href={`/restaurants/${restaurant.id}#review-form`}
+                    className="inline-block w-full text-center bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold py-2 px-4 rounded-lg hover:from-orange-600 hover:to-pink-600 transition-all shadow-md hover:shadow-lg"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    📝 レビューを書く
+                  </a>
+                </div>
               </div>
               ))}
             </div>
