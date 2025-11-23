@@ -21,6 +21,12 @@ export interface Restaurant {
   profileDescription?: string;
   averageScore: number;
   reviewCount: number;
+  // SUUMOライク検索機能用フィールド
+  priceRange?: '~700' | '700-900' | '900-1200' | '1200~'; // 価格帯
+  isMorningRamen: boolean;                                 // 朝ラー対応フラグ
+  thumbnailUrl?: string;                                   // サムネイル画像URL
+  avgFlavorRichness?: number;                              // 味の濃さ平均（0-10）
+  features?: Feature[];                                    // 店舗特徴（券売機、駐車場など）
   createdAt: string;
   updatedAt: string;
 }
@@ -65,6 +71,7 @@ export interface Review {
   selfServiceNote?: string;          // セルフサービス補足
   servingTime: 'under_3' | '3_to_7' | '7_to_15' | 'over_15'; // 提供時間
   servingTimeNote?: string;          // 提供時間補足
+  flavorRichness?: number;           // 味の濃さ（0:あっさり 〜 10:こってり）
   // 任意項目
   generalComment?: string;           // 総合コメント（旧comment）
   visitDate?: string;
@@ -98,4 +105,14 @@ export interface Tag {
   name: string;
   slug: string;
   description?: string;
+}
+
+// Feature types (店舗特徴)
+export interface Feature {
+  id: string;
+  name: string;
+  category: 'service' | 'facility' | 'atmosphere';
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
 }

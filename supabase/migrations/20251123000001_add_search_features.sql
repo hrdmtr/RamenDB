@@ -22,10 +22,16 @@ ALTER TABLE restaurants
 ALTER TABLE restaurants
   ADD COLUMN avg_flavor_richness DECIMAL(3,1);
 
--- GPS用座標（将来実装用、今は使わない）
-ALTER TABLE restaurants
-  ADD COLUMN latitude DECIMAL(10, 8),
-  ADD COLUMN longitude DECIMAL(11, 8);
+-- GPS用座標（既に存在する場合はスキップ）
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='restaurants' AND column_name='latitude') THEN
+    ALTER TABLE restaurants ADD COLUMN latitude DECIMAL(10, 8);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='restaurants' AND column_name='longitude') THEN
+    ALTER TABLE restaurants ADD COLUMN longitude DECIMAL(11, 8);
+  END IF;
+END $$;
 
 -- コメント追加
 COMMENT ON COLUMN restaurants.price_range IS '価格帯（~700円、700-900円、900-1200円、1200円~）';

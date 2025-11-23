@@ -11,6 +11,14 @@ export async function GET(request: Request) {
     const railway = searchParams.get('railway') || '';
     const minScore = searchParams.get('minScore') || '';
 
+    // SUUMOライク検索用パラメータ
+    const priceRange = searchParams.get('priceRange') || '';
+    const isMorningRamen = searchParams.get('isMorningRamen') || '';
+    const features = searchParams.get('features') || ''; // カンマ区切りのfeature ID
+    const minFlavorRichness = searchParams.get('minFlavorRichness') || '';
+    const maxFlavorRichness = searchParams.get('maxFlavorRichness') || '';
+    const sortBy = searchParams.get('sortBy') || 'score'; // score, cost_performance, morning_ramen
+
     // ベースクエリ
     let query = supabase
       .from('restaurants')
@@ -28,6 +36,13 @@ export async function GET(request: Request) {
             id,
             name,
             slug
+          )
+        ),
+        restaurant_features (
+          feature:features (
+            id,
+            name,
+            category
           )
         )
       `);
@@ -57,10 +72,44 @@ export async function GET(request: Request) {
       }
     }
 
+    // 価格帯フィルター
+    if (priceRange) {
+      query = query.eq('price_range', priceRange);
+    }
+
+    // 朝ラー対応フィルター
+    if (isMorningRamen === 'true') {
+      query = query.eq('is_morning_ramen', true);
+    }
+
+    // 味の濃さフィルター
+    if (minFlavorRichness) {
+      const minFlavorNum = parseFloat(minFlavorRichness);
+      if (!isNaN(minFlavorNum)) {
+        query = query.gte('avg_flavor_richness', minFlavorNum);
+      }
+    }
+    if (maxFlavorRichness) {
+      const maxFlavorNum = parseFloat(maxFlavorRichness);
+      if (!isNaN(maxFlavorNum)) {
+        query = query.lte('avg_flavor_richness', maxFlavorNum);
+      }
+    }
+
+    // 並び替え
+    if (sortBy === 'cost_performance') {
+      // コスパ順（価格帯とスコアの組み合わせ、将来的に計算ロジックを追加）
+      query = query.order('average_score', { ascending: false });
+    } else if (sortBy === 'morning_ramen') {
+      // 朝ラー適性順
+      query = query.order('is_morning_ramen', { ascending: false });
+    } else {
+      // デフォルト: スコア順
+      query = query.order('average_score', { ascending: false });
+    }
+
     // データを取得
-    const { data: restaurants, error } = await query.order('average_score', {
-      ascending: false,
-    });
+    const { data: restaurants, error } = await query;
 
     if (error) {
       throw error;
@@ -83,6 +132,20 @@ export async function GET(request: Request) {
       filteredRestaurants = filteredRestaurants.filter((restaurant: any) =>
         restaurant.restaurant_tags?.some((rt: any) => rt.tag?.slug === tag)
       );
+    }
+
+    // 店舗特徴フィルター（複数選択対応）
+    if (features) {
+      const featureIds = features.split(',').map((id) => id.trim());
+      filteredRestaurants = filteredRestaurants.filter((restaurant: any) => {
+        const restaurantFeatureIds = restaurant.restaurant_features?.map(
+          (rf: any) => rf.feature?.id
+        ) || [];
+        // すべての指定された特徴を持つ店舗のみ（AND条件）
+        return featureIds.every((featureId) =>
+          restaurantFeatureIds.includes(featureId)
+        );
+      });
     }
 
     return NextResponse.json({
