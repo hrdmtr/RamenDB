@@ -181,12 +181,30 @@ export default function RestaurantsPageContent() {
         {/* 結果なし */}
         {!isLoading && restaurants.length === 0 && (
           <div className="text-center py-12 bg-white rounded-xl border-2 border-orange-200 shadow-md">
-            <p className="text-gray-700 text-xl font-semibold">
-              条件に一致する店舗が見つかりませんでした
-            </p>
-            <p className="text-base text-gray-500 mt-2">
-              条件を変更して再度検索してください
-            </p>
+            <div className="mb-6">
+              <p className="text-gray-700 text-xl font-semibold">
+                条件に一致する店舗が見つかりませんでした
+              </p>
+              <p className="text-base text-gray-500 mt-2">
+                条件を変更して再度検索してください
+              </p>
+            </div>
+
+            {/* 店舗追加を促すセクション */}
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <p className="text-gray-700 text-lg font-semibold mb-4">
+                お探しの店舗がまだ登録されていませんか？
+              </p>
+              <p className="text-sm text-gray-600 mb-6">
+                新しいラーメン店を追加して、最初のレビュアーになりましょう！
+              </p>
+              <a
+                href="/admin/restaurants/new"
+                className="inline-block bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold py-3 px-8 rounded-lg hover:from-orange-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                🏪 新しい店舗を追加する
+              </a>
+            </div>
           </div>
         )}
 
