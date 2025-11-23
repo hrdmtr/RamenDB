@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// 動的レンダリングを強制（ビルド時に実行されないようにする）
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const { data: categories, error } = await supabase
