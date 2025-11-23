@@ -18,7 +18,11 @@ export default function NewRestaurantPage() {
     twitter: '',
     instagram: '',
     profileDescription: '',
+    thumbnailUrl: '',
   });
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -27,11 +31,62 @@ export default function NewRestaurantPage() {
     });
   };
 
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThumbnailFile(file);
+      // プレビュー表示
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setThumbnailPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadThumbnail = async (): Promise<string | null> => {
+    if (!thumbnailFile) return null;
+
+    setIsUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', thumbnailFile);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        return data.url;
+      } else {
+        alert('画像アップロードエラー: ' + data.error);
+        return null;
+      }
+    } catch (error) {
+      console.error('画像アップロードエラー:', error);
+      alert('画像のアップロードに失敗しました');
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      // 画像がある場合は先にアップロード
+      let thumbnailUrl = formData.thumbnailUrl;
+      if (thumbnailFile) {
+        const uploadedUrl = await uploadThumbnail();
+        if (uploadedUrl) {
+          thumbnailUrl = uploadedUrl;
+        }
+      }
+
       const response = await fetch('/api/admin/restaurants', {
         method: 'POST',
         headers: {
@@ -48,6 +103,7 @@ export default function NewRestaurantPage() {
           twitter: formData.twitter || null,
           instagram: formData.instagram || null,
           profile_description: formData.profileDescription || null,
+          thumbnail_url: thumbnailUrl || null,
         }),
       });
 
@@ -179,6 +235,32 @@ export default function NewRestaurantPage() {
               任意項目
             </h2>
 
+            {/* 店舗代表画像 */}
+            <div className="mb-6">
+              <label className="block text-sm font-bold text-gray-900 mb-2">
+                店舗代表画像
+              </label>
+              <p className="text-xs text-gray-600 mb-2">
+                一覧ページで表示される代表画像です（JPEG, PNG, WebP / 5MB以下）
+              </p>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handleThumbnailChange}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              />
+              {thumbnailPreview && (
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-2">プレビュー:</p>
+                  <img
+                    src={thumbnailPreview}
+                    alt="サムネイルプレビュー"
+                    className="w-64 h-48 object-cover rounded-lg border-2 border-gray-300"
+                  />
+                </div>
+              )}
+            </div>
+
             {/* 電話番号 */}
             <div className="mb-6">
               <label className="block text-sm font-bold text-gray-900 mb-2">
@@ -259,10 +341,14 @@ export default function NewRestaurantPage() {
           <div className="flex gap-4">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUploading}
               className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold py-3 px-6 rounded-lg hover:from-orange-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? '追加中...' : '🏪 店舗を追加する'}
+              {isUploading
+                ? '画像アップロード中...'
+                : isSubmitting
+                ? '追加中...'
+                : '🏪 店舗を追加する'}
             </button>
             <Link
               href="/restaurants"

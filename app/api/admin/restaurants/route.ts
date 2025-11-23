@@ -45,6 +45,7 @@ export async function POST(request: Request) {
       twitter,
       instagram,
       profile_description,
+      thumbnail_url,
     } = body;
 
     // バリデーション
@@ -75,6 +76,7 @@ export async function POST(request: Request) {
         twitter: twitter || null,
         instagram: instagram || null,
         profile_description: profile_description || null,
+        thumbnail_url: thumbnail_url || null,
         average_score: 0,
         review_count: 0,
       })

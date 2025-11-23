@@ -224,24 +224,20 @@ export default function RestaurantsPageContent() {
                     <div className="flex-shrink-0">
                       <div className="flex gap-1.5">
                         {(() => {
-                          // レビュー画像を収集
-                          const allImages: string[] = [];
+                          // メイン画像: 店舗管理画面で登録したthumbnail_url
+                          const mainImage = restaurant.thumbnail_url;
+
+                          // サブ画像: レビュー画像から3枚（将来的には評価の高いレビューから）
+                          const reviewImages: string[] = [];
                           restaurant.reviews?.forEach((review: any) => {
                             review.review_images?.forEach((img: any) => {
-                              allImages.push(img.image_url);
+                              reviewImages.push(img.image_url);
                             });
                           });
+                          const subImages = reviewImages.slice(0, 3);
 
-                          // サムネイルも含める
-                          if (restaurant.thumbnail_url) {
-                            allImages.unshift(restaurant.thumbnail_url);
-                          }
-
-                          // 最大4枚
-                          const displayImages = allImages.slice(0, 4);
-
-                          // 画像がない場合はプレースホルダー
-                          if (displayImages.length === 0) {
+                          // メイン画像がない場合はプレースホルダー
+                          if (!mainImage) {
                             return (
                               <div className="w-44 h-32 bg-gray-200 rounded overflow-hidden flex items-center justify-center">
                                 <span className="text-gray-400 text-sm">No Image</span>
@@ -251,32 +247,30 @@ export default function RestaurantsPageContent() {
 
                           return (
                             <>
-                              {/* メイン画像（大） */}
+                              {/* メイン画像（大）: 店舗代表画像 */}
                               <div className="w-44 h-32 bg-gray-200 rounded overflow-hidden">
                                 <img
-                                  src={displayImages[0]}
+                                  src={mainImage}
                                   alt={restaurant.name}
                                   className="w-full h-full object-cover"
                                 />
                               </div>
-                              {/* サブ画像3枚（小・縦並び） */}
-                              {displayImages.length > 1 && (
-                                <div className="flex flex-col gap-1.5">
-                                  {displayImages.slice(1, 4).map((img, i) => (
-                                    <div key={i} className="w-16 h-[calc((128px-12px)/3)] bg-gray-100 rounded overflow-hidden">
-                                      <img
-                                        src={img}
-                                        alt={`${restaurant.name} ${i + 2}`}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                  ))}
-                                  {/* 画像が足りない場合は空枠 */}
-                                  {[...Array(Math.max(0, 3 - displayImages.slice(1).length))].map((_, i) => (
-                                    <div key={`empty-${i}`} className="w-16 h-[calc((128px-12px)/3)] bg-gray-100 rounded"></div>
-                                  ))}
-                                </div>
-                              )}
+                              {/* サブ画像3枚（小・縦並び）: レビューから */}
+                              <div className="flex flex-col gap-1.5">
+                                {subImages.map((img, i) => (
+                                  <div key={i} className="w-16 h-[calc((128px-12px)/3)] bg-gray-100 rounded overflow-hidden">
+                                    <img
+                                      src={img}
+                                      alt={`${restaurant.name} レビュー ${i + 1}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                ))}
+                                {/* 画像が足りない場合は空枠 */}
+                                {[...Array(Math.max(0, 3 - subImages.length))].map((_, i) => (
+                                  <div key={`empty-${i}`} className="w-16 h-[calc((128px-12px)/3)] bg-gray-100 rounded"></div>
+                                ))}
+                              </div>
                             </>
                           );
                         })()}
