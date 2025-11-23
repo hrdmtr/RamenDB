@@ -192,10 +192,10 @@ export default function RestaurantsPage() {
                   <div className="flex gap-4 p-4">
                     {/* 画像エリア（4枚表示） */}
                     <div className="flex-shrink-0">
-                      <div className="flex gap-1">
+                      <div className="flex gap-1.5">
                         {/* メイン画像（大） */}
                         {restaurant.thumbnail_url && (
-                          <div className="w-32 h-24 bg-gray-200 rounded overflow-hidden">
+                          <div className="w-44 h-32 bg-gray-200 rounded overflow-hidden">
                             <img
                               src={restaurant.thumbnail_url}
                               alt={restaurant.name}
@@ -204,9 +204,9 @@ export default function RestaurantsPage() {
                           </div>
                         )}
                         {/* サブ画像3枚（小・縦並び） */}
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1.5">
                           {[1, 2, 3].map((i) => (
-                            <div key={i} className="w-12 h-[calc((96px-8px)/3)] bg-gray-100 rounded overflow-hidden">
+                            <div key={i} className="w-16 h-[calc((128px-12px)/3)] bg-gray-100 rounded overflow-hidden">
                               {restaurant.thumbnail_url && (
                                 <img
                                   src={restaurant.thumbnail_url}
