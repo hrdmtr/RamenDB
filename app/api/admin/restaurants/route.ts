@@ -1,11 +1,29 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
 // 店舗新規作成
 export async function POST(request: Request) {
   try {
+    // 環境変数チェック
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Supabase環境変数が設定されていません');
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'サーバー設定エラー',
+        },
+        { status: 500 }
+      );
+    }
+
+    // Supabaseクライアントを作成
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
     const body = await request.json();
     const {
       name,
@@ -53,7 +71,13 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('店舗作成エラー:', error);
-      throw error;
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message || 'データベースエラー',
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
