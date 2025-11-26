@@ -8,6 +8,45 @@ interface QuickRatingFormProps {
   onCancel: () => void;
 }
 
+// 評価基準の定義
+const RATING_CRITERIA = {
+  taste: {
+    5: 'すごくうまい',
+    4: 'うまい',
+    3: '普通においしい',
+    2: '微妙',
+    1: 'おいしくない',
+  },
+  portion: {
+    5: '大満足',
+    4: '満足',
+    3: 'ふつう',
+    2: 'ちょっと物足りない',
+    1: 'まったく物足りない',
+  },
+  price: {
+    5: 'コスパすごく良い',
+    4: 'コスパ高め',
+    3: 'まあ妥当',
+    2: 'うーん',
+    1: 'コスパ悪い',
+  },
+  service: {
+    5: '気持ちよく食事できた',
+    4: '問題ない接客だった',
+    3: '可もなく不可もない接客',
+    2: '少し不満',
+    1: '不満な接客',
+  },
+  cleanliness: {
+    5: '清潔で気持ち良い',
+    4: '清潔で問題ない',
+    3: '気にはならなかった',
+    2: '少し不衛生を感じた',
+    1: '汚かった',
+  },
+};
+
 export default function QuickRatingForm({
   restaurantId,
   onSuccess,
@@ -15,11 +54,11 @@ export default function QuickRatingForm({
 }: QuickRatingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ratings, setRatings] = useState({
-    taste: 5.0,
-    portion: 5.0,
-    price: 5.0,
-    service: 5.0,
-    cleanliness: 5.0,
+    taste: 3,
+    portion: 3,
+    price: 3,
+    service: 3,
+    cleanliness: 3,
   });
   const [comment, setComment] = useState('');
 
@@ -68,58 +107,64 @@ export default function QuickRatingForm({
     label: string
   ) => {
     const value = ratings[category];
+    const criteria = RATING_CRITERIA[category];
 
     return (
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-bold text-gray-900">{label}</label>
-          <span className="text-lg font-bold text-orange-500">{value.toFixed(1)}</span>
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-base font-bold text-gray-900">{label}</label>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-bold text-orange-500">{value}</span>
+            <span className="text-sm text-gray-500">/ 5</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {[...Array(10)].map((_, i) => {
-            const starValue = i + 1;
-            return (
-              <button
-                key={i}
-                type="button"
-                onClick={() => handleRatingChange(category, starValue)}
-                className={`text-2xl transition-all ${
-                  starValue <= value
-                    ? 'text-orange-500'
-                    : 'text-gray-300 hover:text-orange-300'
-                }`}
-              >
-                ★
-              </button>
-            );
-          })}
+
+        {/* 星評価（5つ星） */}
+        <div className="flex items-center gap-2 mb-3">
+          {[1, 2, 3, 4, 5].map((starValue) => (
+            <button
+              key={starValue}
+              type="button"
+              onClick={() => handleRatingChange(category, starValue)}
+              className={`text-4xl transition-all ${
+                starValue <= value
+                  ? 'text-orange-500'
+                  : 'text-gray-300 hover:text-orange-300'
+              }`}
+            >
+              ★
+            </button>
+          ))}
         </div>
-        <input
-          type="range"
-          min="0"
-          max="10"
-          step="0.5"
-          value={value}
-          onChange={(e) => handleRatingChange(category, parseFloat(e.target.value))}
-          className="w-full mt-2"
-        />
+
+        {/* 評価基準の表示 */}
+        <div className="text-sm text-gray-700 bg-white p-3 rounded border border-gray-200">
+          <p className="font-semibold text-orange-600 mb-1">{criteria[value as keyof typeof criteria]}</p>
+          <div className="text-xs text-gray-500 space-y-1 mt-2">
+            {Object.entries(criteria).reverse().map(([score, desc]) => (
+              <div key={score} className={value === parseInt(score) ? 'font-bold text-gray-700' : ''}>
+                <span className="inline-block w-4">{score}:</span> {desc}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">⭐ 簡易評価</h2>
+    <div className="bg-white rounded-lg shadow-lg p-6 max-h-[80vh] overflow-y-auto">
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">⭐ 簡易評価</h2>
       <p className="text-sm text-gray-600 mb-6">
-        5つの項目を10点満点で評価してください（1分で完了）
+        5つの項目を5点満点で評価してください（1分で完了）
       </p>
 
       <form onSubmit={handleSubmit}>
-        {renderStarRating('taste', '味')}
-        {renderStarRating('portion', '量')}
-        {renderStarRating('price', '価格/コスパ')}
-        {renderStarRating('service', '接客')}
-        {renderStarRating('cleanliness', '衛生')}
+        {renderStarRating('taste', '🍜 味')}
+        {renderStarRating('portion', '📏 量')}
+        {renderStarRating('price', '💰 価格/コスパ')}
+        {renderStarRating('service', '👥 接客')}
+        {renderStarRating('cleanliness', '✨ 衛生')}
 
         {/* 任意コメント */}
         <div className="mt-6 mb-6">

@@ -3,6 +3,7 @@ import { Restaurant } from '@/types';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ReviewSection from '@/components/ReviewSection';
+import RadarChart from '@/components/RadarChart';
 
 async function getRestaurant(id: string) {
   const { data: restaurant, error } = await supabase
@@ -80,6 +81,69 @@ export default async function RestaurantDetailPage({
   const reviews = await getReviews(id);
   const restaurant = restaurantData as any; // データベースはスネークケースを使用
 
+  // レビューの5軸評価平均を計算（5軸データがあるレビューのみ）
+  const calculateAverageScores = () => {
+    if (!reviews || reviews.length === 0) {
+      return {
+        scoreTaste: 0,
+        scorePortion: 0,
+        scorePrice: 0,
+        scoreService: 0,
+        scoreCleanliness: 0,
+        count: 0,
+      };
+    }
+
+    // 5軸評価データがあるレビューのみをフィルタ
+    const reviewsWithScores = reviews.filter(
+      (review: any) =>
+        review.score_taste != null &&
+        review.score_portion != null &&
+        review.score_price != null &&
+        review.score_service != null &&
+        review.score_cleanliness != null
+    );
+
+    if (reviewsWithScores.length === 0) {
+      return {
+        scoreTaste: 0,
+        scorePortion: 0,
+        scorePrice: 0,
+        scoreService: 0,
+        scoreCleanliness: 0,
+        count: 0,
+      };
+    }
+
+    const total = reviewsWithScores.reduce(
+      (acc: any, review: any) => ({
+        scoreTaste: acc.scoreTaste + review.score_taste,
+        scorePortion: acc.scorePortion + review.score_portion,
+        scorePrice: acc.scorePrice + review.score_price,
+        scoreService: acc.scoreService + review.score_service,
+        scoreCleanliness: acc.scoreCleanliness + review.score_cleanliness,
+      }),
+      {
+        scoreTaste: 0,
+        scorePortion: 0,
+        scorePrice: 0,
+        scoreService: 0,
+        scoreCleanliness: 0,
+      }
+    );
+
+    return {
+      scoreTaste: total.scoreTaste / reviewsWithScores.length,
+      scorePortion: total.scorePortion / reviewsWithScores.length,
+      scorePrice: total.scorePrice / reviewsWithScores.length,
+      scoreService: total.scoreService / reviewsWithScores.length,
+      scoreCleanliness: total.scoreCleanliness / reviewsWithScores.length,
+      count: reviewsWithScores.length,
+    };
+  };
+
+  const averageScores = calculateAverageScores();
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* パンくずリスト */}
@@ -146,6 +210,95 @@ export default async function RestaurantDetailPage({
             <h2 className="text-2xl font-bold mb-3 text-gray-900">店舗について</h2>
             <p className="text-gray-700 leading-relaxed">
               {restaurant.profile_description}
+            </p>
+          </div>
+        )}
+
+        {/* 5軸評価レーダーチャート */}
+        {reviews && reviews.length > 0 && averageScores.count > 0 && (
+          <div className="p-6 border-b">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">5軸評価</h2>
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              {/* レーダーチャート */}
+              <div className="w-full md:w-1/2">
+                <RadarChart data={averageScores} />
+              </div>
+              {/* 数値表示 */}
+              <div className="w-full md:w-1/2 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-800 font-semibold">味</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-48 bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-blue-600 h-3 rounded-full"
+                        style={{ width: `${(averageScores.scoreTaste / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-gray-900 font-bold w-12 text-right">
+                      {averageScores.scoreTaste.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-800 font-semibold">量</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-48 bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-blue-600 h-3 rounded-full"
+                        style={{ width: `${(averageScores.scorePortion / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-gray-900 font-bold w-12 text-right">
+                      {averageScores.scorePortion.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-800 font-semibold">価格/コスパ</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-48 bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-blue-600 h-3 rounded-full"
+                        style={{ width: `${(averageScores.scorePrice / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-gray-900 font-bold w-12 text-right">
+                      {averageScores.scorePrice.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-800 font-semibold">接客</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-48 bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-blue-600 h-3 rounded-full"
+                        style={{ width: `${(averageScores.scoreService / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-gray-900 font-bold w-12 text-right">
+                      {averageScores.scoreService.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-800 font-semibold">衛生</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-48 bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-blue-600 h-3 rounded-full"
+                        style={{ width: `${(averageScores.scoreCleanliness / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-gray-900 font-bold w-12 text-right">
+                      {averageScores.scoreCleanliness.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 mt-4 text-center">
+              ※5軸評価データがある{averageScores.count}件のレビューの平均値
             </p>
           </div>
         )}

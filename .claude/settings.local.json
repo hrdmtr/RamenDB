@@ -18,7 +18,9 @@
       "Bash(git commit -m \"$(cat <<''EOF''\n機能: Supabaseセットアップ完了\n\n- Supabaseプロジェクトの作成\n  - プロジェクトURL: https://rvrmhcvjhoifmjlaypvn.supabase.co\n  - 環境変数の設定（.env.local）\n- データベースマイグレーションの実行\n  - 9テーブルの作成\n  - トリガーの設定\n  - 初期データ投入（カテゴリ8件、タグ7件）\n- 開発環境の確認\n  - 開発サーバー起動（http://localhost:3001）\n  - Supabase接続テスト成功\n  - テストAPIルートの作成（/api/test）\n  - カテゴリデータ取得確認\n- CURRENT_STATUS.mdの更新\n  - プロジェクト状態の更新\n  - 完了タスクのチェック\n  - プロジェクト構造の更新\n  - 開発メモの追加\n  - 次のステップの更新\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
       "Bash(curl -X POST http://localhost:3001/api/admin/restaurants -H \"Content-Type: application/json\" -d '{\"\"\"\"name\"\"\"\":\"\"\"\"テスト店舗\"\"\"\",\"\"\"\"name_kana\"\"\"\":\"\"\"\"てすとてんぽ\"\"\"\",\"\"\"\"address\"\"\"\":\"\"\"\"東京都\"\"\"\",\"\"\"\"nearest_station\"\"\"\":\"\"\"\"渋谷\"\"\"\",\"\"\"\"railway\"\"\"\":\"\"\"\"山手線\"\"\"\"}')",
-      "Bash(curl http://localhost:3001/api/restaurants)"
+      "Bash(curl http://localhost:3001/api/restaurants)",
+      "Bash(psql:*)",
+      "Bash(curl http://localhost:3001/api/reviews)"
     ],
     "deny": [],
     "ask": []

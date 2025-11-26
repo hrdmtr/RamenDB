@@ -83,6 +83,22 @@ export async function POST(request: Request) {
     // user_idは将来的に認証から取得するが、現在はダミーユーザーを使用
     const actualUserId = user_id || '00000000-0000-0000-0000-000000000000';
 
+    // ダミーユーザーが存在しない場合は作成
+    if (actualUserId === '00000000-0000-0000-0000-000000000000') {
+      const { error: userError } = await supabase
+        .from('users')
+        .upsert({
+          id: actualUserId,
+          username: 'dummy_user',
+          email: 'dummy@example.com',
+          display_name: 'ゲストユーザー',
+        }, { onConflict: 'id' });
+
+      if (userError) {
+        console.error('ダミーユーザー作成エラー:', userError);
+      }
+    }
+
     // レビュータイプのバリデーション
     const validReviewTypes = ['quick', 'detailed'];
     if (!review_type || !validReviewTypes.includes(review_type)) {
@@ -106,11 +122,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // スコア範囲チェック
+    // スコア範囲チェック（1〜5点）
     const scores = [score_taste, score_portion, score_price, score_service, score_cleanliness];
-    if (scores.some((s) => s < 0 || s > 10)) {
+    if (scores.some((s) => s < 1 || s > 5)) {
       return NextResponse.json(
-        { success: false, error: 'スコアは0〜10の範囲で入力してください' },
+        { success: false, error: 'スコアは1〜5の範囲で入力してください' },
         { status: 400 }
       );
     }
