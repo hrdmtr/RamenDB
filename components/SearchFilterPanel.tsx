@@ -257,6 +257,7 @@ export default function SearchFilterPanel({
       <SlideUpPanel
         isOpen={activePanel === 'taste'}
         onClose={() => setActivePanel(null)}
+        onApply={onSearch}
         title="味・ジャンル"
       >
         <div className="p-4 space-y-6">
@@ -311,6 +312,7 @@ export default function SearchFilterPanel({
       <SlideUpPanel
         isOpen={activePanel === 'price'}
         onClose={() => setActivePanel(null)}
+        onApply={onSearch}
         title="価格帯"
       >
         <div className="p-4">
@@ -338,6 +340,7 @@ export default function SearchFilterPanel({
       <SlideUpPanel
         isOpen={activePanel === 'time'}
         onClose={() => setActivePanel(null)}
+        onApply={onSearch}
         title="時間帯"
       >
         <div className="p-4">
@@ -358,6 +361,7 @@ export default function SearchFilterPanel({
       <SlideUpPanel
         isOpen={activePanel === 'features'}
         onClose={() => setActivePanel(null)}
+        onApply={onSearch}
         title="店舗特徴"
       >
         <div className="p-4 space-y-6">
@@ -401,6 +405,7 @@ export default function SearchFilterPanel({
       <SlideUpPanel
         isOpen={activePanel === 'richness'}
         onClose={() => setActivePanel(null)}
+        onApply={onSearch}
         title="こってり度"
       >
         <div className="p-4 space-y-6">
