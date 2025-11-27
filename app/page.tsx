@@ -8,6 +8,8 @@ export default function Home() {
   const [keyword, setKeyword] = useState('');
   const [selectedStation, setSelectedStation] = useState('');
   const [selectedRailway, setSelectedRailway] = useState('');
+  const [selectedPrefecture, setSelectedPrefecture] = useState('');
+  const [showPrefecturePanel, setShowPrefecturePanel] = useState(false);
 
   // 主要路線
   const majorRailways = [
@@ -56,13 +58,31 @@ export default function Home() {
     '神田',
   ];
 
+  // エリアごとの都道府県
+  const prefecturesByRegion = {
+    北海道: ['北海道'],
+    東北: ['青森', '岩手', '宮城', '秋田', '山形', '福島'],
+    関東: ['東京', '神奈川', '埼玉', '千葉', '茨城', '栃木', '群馬'],
+    中部: ['新潟', '富山', '石川', '福井', '山梨', '長野', '岐阜', '静岡', '愛知'],
+    関西: ['三重', '滋賀', '京都', '大阪', '兵庫', '奈良', '和歌山'],
+    中国: ['鳥取', '島根', '岡山', '広島', '山口'],
+    四国: ['徳島', '香川', '愛媛', '高知'],
+    九州: ['福岡', '佐賀', '長崎', '熊本', '大分', '宮崎', '鹿児島', '沖縄'],
+  };
+
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (keyword) params.append('keyword', keyword);
     if (selectedStation) params.append('station', selectedStation);
     if (selectedRailway) params.append('railway', selectedRailway);
+    if (selectedPrefecture) params.append('prefecture', selectedPrefecture);
 
     router.push(`/restaurants?${params.toString()}`);
+  };
+
+  const handlePrefectureSelect = (prefecture: string) => {
+    setSelectedPrefecture(prefecture);
+    setShowPrefecturePanel(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -94,6 +114,72 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             お店を探す
           </h2>
+
+          {/* 都道府県で探す */}
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              📍 都道府県から探す
+            </label>
+            {selectedPrefecture ? (
+              <div className="flex items-center gap-3">
+                <div className="flex-1 px-4 py-3 bg-blue-50 border-2 border-blue-400 rounded-lg text-gray-900 font-semibold">
+                  {selectedPrefecture}都/道/府/県
+                </div>
+                <button
+                  onClick={() => setSelectedPrefecture('')}
+                  className="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+                >
+                  クリア
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowPrefecturePanel(!showPrefecturePanel)}
+                className="w-full px-4 py-4 border-2 border-orange-300 rounded-lg hover:border-orange-400 transition-colors text-left text-gray-500 shadow-sm bg-white"
+              >
+                都道府県を選択してください
+              </button>
+            )}
+
+            {/* 都道府県選択パネル */}
+            {showPrefecturePanel && (
+              <div className="mt-4 p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200 shadow-lg">
+                <div className="space-y-6">
+                  {Object.entries(prefecturesByRegion).map(([region, prefectures]) => (
+                    <div key={region}>
+                      <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        <span className="inline-block w-1 h-6 bg-gradient-to-b from-orange-500 to-pink-500 rounded"></span>
+                        {region}
+                      </h3>
+                      <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                        {prefectures.map((prefecture) => (
+                          <button
+                            key={prefecture}
+                            onClick={() => handlePrefectureSelect(prefecture)}
+                            className="px-4 py-3 bg-white border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all font-semibold text-gray-900 shadow-sm hover:shadow-md"
+                          >
+                            {prefecture}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setShowPrefecturePanel(false)}
+                  className="mt-6 w-full px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+                >
+                  閉じる
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-gray-300"></div>
+            <span className="text-gray-500 font-medium">または</span>
+            <div className="flex-1 h-px bg-gray-300"></div>
+          </div>
 
           {/* キーワード検索 */}
           <div className="mb-6">
