@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ReviewSection from '@/components/ReviewSection';
 import RadarChart from '@/components/RadarChart';
+import type { Metadata } from 'next';
 
 async function getRestaurant(id: string) {
   const { data: restaurant, error } = await supabase
@@ -65,6 +66,63 @@ async function getReviews(restaurantId: string) {
 }
 
 const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'];
+
+// メタデータ生成
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const restaurant = await getRestaurant(id);
+
+  if (!restaurant) {
+    return {
+      title: '店舗が見つかりません',
+    };
+  }
+
+  const restaurantData = restaurant as any;
+  const categories = restaurantData.restaurant_categories
+    ?.map((rc: any) => rc.category.name)
+    .join('・') || '';
+
+  return {
+    title: `${restaurantData.name} - ${categories}`,
+    description: `${restaurantData.name}（${restaurantData.name_kana}）のレビュー・評価。${restaurantData.nearest_station}駅から徒歩圏内。平均評価${restaurantData.average_score.toFixed(1)}点（${restaurantData.review_count}件のレビュー）。${categories}のラーメン店。`,
+    keywords: [
+      restaurantData.name,
+      restaurantData.nearest_station,
+      restaurantData.railway,
+      categories,
+      'ラーメン',
+      'レビュー',
+      '評価',
+    ],
+    openGraph: {
+      title: `${restaurantData.name} - ${categories} | RamenDB`,
+      description: `${restaurantData.name}の詳細情報・レビュー。平均評価${restaurantData.average_score.toFixed(1)}点（${restaurantData.review_count}件）`,
+      url: `https://ramen-db-three.vercel.app/restaurants/${id}`,
+      type: 'website',
+      images: restaurantData.thumbnail_url
+        ? [
+            {
+              url: restaurantData.thumbnail_url,
+              width: 800,
+              height: 600,
+              alt: restaurantData.name,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${restaurantData.name} - ${categories}`,
+      description: `平均評価${restaurantData.average_score.toFixed(1)}点（${restaurantData.review_count}件のレビュー）`,
+      images: restaurantData.thumbnail_url ? [restaurantData.thumbnail_url] : undefined,
+    },
+  };
+}
 
 export default async function RestaurantDetailPage({
   params,
@@ -144,8 +202,44 @@ export default async function RestaurantDetailPage({
 
   const averageScores = calculateAverageScores();
 
+  // 構造化データ（JSON-LD）
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Restaurant',
+    name: restaurant.name,
+    image: restaurant.thumbnail_url || undefined,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: restaurant.address,
+      addressCountry: 'JP',
+    },
+    geo: restaurant.latitude && restaurant.longitude ? {
+      '@type': 'GeoCoordinates',
+      latitude: restaurant.latitude,
+      longitude: restaurant.longitude,
+    } : undefined,
+    url: `https://ramen-db-three.vercel.app/restaurants/${id}`,
+    telephone: restaurant.phone_number || undefined,
+    servesCuisine: 'Japanese',
+    priceRange: '¥¥',
+    aggregateRating: reviews && reviews.length > 0 ? {
+      '@type': 'AggregateRating',
+      ratingValue: restaurant.average_score.toFixed(1),
+      reviewCount: restaurant.review_count,
+      bestRating: '10',
+      worstRating: '0',
+    } : undefined,
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      {/* 構造化データ */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
+      <div className="container mx-auto px-4 py-8">
       {/* パンくずリスト */}
       <div className="mb-6 text-sm text-gray-600">
         <Link href="/" className="hover:text-blue-600">
@@ -428,6 +522,7 @@ export default async function RestaurantDetailPage({
           ← 店舗一覧に戻る
         </Link>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
