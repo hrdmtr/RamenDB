@@ -34,6 +34,10 @@ export default function RestaurantsPageContent() {
     sortBy: searchParams.get('sortBy') || 'score',
   };
 
+  // 駅と路線のパラメータを取得
+  const station = searchParams.get('station') || '';
+  const railway = searchParams.get('railway') || '';
+
   const [filters, setFilters] = useState<SearchFilters>(initialFilters);
 
   // レストランデータを取得
@@ -54,6 +58,10 @@ export default function RestaurantsPageContent() {
       if (searchFilters.maxFlavorRichness < 10)
         params.append('maxFlavorRichness', searchFilters.maxFlavorRichness.toString());
       if (searchFilters.sortBy) params.append('sortBy', searchFilters.sortBy);
+
+      // 駅と路線のパラメータを追加
+      if (station) params.append('station', station);
+      if (railway) params.append('railway', railway);
 
       const response = await fetch(`/api/restaurants?${params.toString()}`);
       const data = await response.json();
@@ -116,9 +124,17 @@ export default function RestaurantsPageContent() {
       <div className="bg-orange-500 border-b sticky top-0 z-30 shadow-md">
         <div className="container mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold text-white">ラーメン店検索</h1>
-          <p className="text-sm font-medium text-white/90 mt-1">
-            {isLoading ? '読み込み中...' : `${restaurants.length}件の店舗`}
-          </p>
+          <div className="flex items-center gap-4 mt-1">
+            <p className="text-sm font-medium text-white/90">
+              {isLoading ? '読み込み中...' : `${restaurants.length}件の店舗`}
+            </p>
+            {(station || railway) && (
+              <div className="flex gap-2 text-sm text-white/90">
+                {railway && <span>🚃 {railway}</span>}
+                {station && <span>📍 {station}駅</span>}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
