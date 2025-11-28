@@ -20,7 +20,10 @@
       "Bash(curl -X POST http://localhost:3001/api/admin/restaurants -H \"Content-Type: application/json\" -d '{\"\"\"\"name\"\"\"\":\"\"\"\"テスト店舗\"\"\"\",\"\"\"\"name_kana\"\"\"\":\"\"\"\"てすとてんぽ\"\"\"\",\"\"\"\"address\"\"\"\":\"\"\"\"東京都\"\"\"\",\"\"\"\"nearest_station\"\"\"\":\"\"\"\"渋谷\"\"\"\",\"\"\"\"railway\"\"\"\":\"\"\"\"山手線\"\"\"\"}')",
       "Bash(curl http://localhost:3001/api/restaurants)",
       "Bash(psql:*)",
-      "Bash(curl http://localhost:3001/api/reviews)"
+      "Bash(curl http://localhost:3001/api/reviews)",
+      "Bash(curl:*)",
+      "Bash(npx supabase db push:*)",
+      "Bash(node scripts/run-migration.js:*)"
     ],
     "deny": [],
     "ask": []

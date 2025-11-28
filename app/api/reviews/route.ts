@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,10 +46,38 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // 認証チェック
+    const cookieStore = await cookies();
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+        },
+      }
+    );
+
+    const {
+      data: { user: authUser },
+    } = await supabaseAuth.auth.getUser();
+
+    if (!authUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'レビューを投稿するにはログインが必要です',
+          code: 'AUTH_REQUIRED',
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const {
       restaurant_id,
-      user_id,
       review_type, // 'quick' or 'detailed'
       // 5軸評価（必須）
       score_taste,
@@ -80,24 +110,24 @@ export async function POST(request: Request) {
       );
     }
 
-    // user_idは将来的に認証から取得するが、現在はダミーユーザーを使用
-    const actualUserId = user_id || '00000000-0000-0000-0000-000000000000';
+    // auth_user_idからusers.idを取得
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('auth_user_id', authUser.id)
+      .single();
 
-    // ダミーユーザーが存在しない場合は作成
-    if (actualUserId === '00000000-0000-0000-0000-000000000000') {
-      const { error: userError } = await supabase
-        .from('users')
-        .upsert({
-          id: actualUserId,
-          username: 'dummy_user',
-          email: 'dummy@example.com',
-          display_name: 'ゲストユーザー',
-        }, { onConflict: 'id' });
-
-      if (userError) {
-        console.error('ダミーユーザー作成エラー:', userError);
-      }
+    if (userError || !user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'ユーザー情報が見つかりません。ログインし直してください。',
+        },
+        { status: 404 }
+      );
     }
+
+    const actualUserId = user.id;
 
     // レビュータイプのバリデーション
     const validReviewTypes = ['quick', 'detailed'];

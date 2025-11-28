@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { initAnonymousUser, trackSearch, trackCategoryClick } from '@/lib/anonymous-user';
+import RecommendationsSection from '@/components/RecommendationsSection';
+import LoginModal from '@/components/LoginModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Home() {
   const router = useRouter();
+  const { user, signOut } = useAuth();
   const [keyword, setKeyword] = useState('');
   const [selectedStation, setSelectedStation] = useState('');
   const [selectedRailway, setSelectedRailway] = useState('');
   const [selectedPrefecture, setSelectedPrefecture] = useState('');
   const [showPrefecturePanel, setShowPrefecturePanel] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // 主要路線
   const majorRailways = [
@@ -70,12 +76,25 @@ export default function Home() {
     九州: ['福岡', '佐賀', '長崎', '熊本', '大分', '宮崎', '鹿児島', '沖縄'],
   };
 
+  // 匿名ユーザー初期化（初回訪問時）
+  useEffect(() => {
+    initAnonymousUser();
+  }, []);
+
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (keyword) params.append('keyword', keyword);
     if (selectedStation) params.append('station', selectedStation);
     if (selectedRailway) params.append('railway', selectedRailway);
     if (selectedPrefecture) params.append('prefecture', selectedPrefecture);
+
+    // 検索を記録
+    trackSearch({
+      keyword,
+      station: selectedStation,
+      railway: selectedRailway,
+      prefecture: selectedPrefecture,
+    });
 
     router.push(`/restaurants?${params.toString()}`);
   };
@@ -94,8 +113,32 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       {/* ヘッダー */}
-      <div className="bg-gradient-to-r from-orange-500 to-pink-500 text-white py-16">
+      <div className="bg-gradient-to-r from-orange-500 to-pink-500 text-white py-16 relative">
         <div className="container mx-auto px-4">
+          {/* ログイン/ログアウトボタン */}
+          <div className="absolute top-4 right-4">
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-white font-semibold">
+                  {user.user_metadata?.name || user.email}
+                </span>
+                <button
+                  onClick={() => signOut()}
+                  className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors font-semibold"
+                >
+                  ログアウト
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="px-6 py-2 bg-white text-orange-500 hover:bg-orange-50 rounded-lg transition-colors font-bold shadow-lg"
+              >
+                ログイン
+              </button>
+            )}
+          </div>
+
           <h1 className="text-5xl font-extrabold mb-4 text-center drop-shadow-lg">
             RamenDB
           </h1>
@@ -250,6 +293,11 @@ export default function Home() {
           </button>
         </div>
 
+        {/* あなたへのおすすめセクション */}
+        <div className="max-w-4xl mx-auto">
+          <RecommendationsSection limit={10} />
+        </div>
+
         {/* 人気カテゴリ */}
         <div className="mt-12 mb-16 max-w-4xl mx-auto">
           <h3 className="text-xl font-bold text-gray-900 mb-4">
@@ -257,49 +305,73 @@ export default function Home() {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <button
-              onClick={() => router.push('/search?category=iekei')}
+              onClick={() => {
+                trackCategoryClick('iekei');
+                router.push('/restaurants?category=iekei');
+              }}
               className="bg-white border-2 border-orange-200 px-6 py-4 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition-all font-bold text-gray-900 shadow-sm"
             >
               🍜 家系
             </button>
             <button
-              onClick={() => router.push('/search?category=jiro')}
+              onClick={() => {
+                trackCategoryClick('jiro');
+                router.push('/restaurants?category=jiro');
+              }}
               className="bg-white border-2 border-orange-200 px-6 py-4 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition-all font-bold text-gray-900 shadow-sm"
             >
               🍜 二郎系
             </button>
             <button
-              onClick={() => router.push('/search?category=tsukemen')}
+              onClick={() => {
+                trackCategoryClick('tsukemen');
+                router.push('/restaurants?category=tsukemen');
+              }}
               className="bg-white border-2 border-orange-200 px-6 py-4 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition-all font-bold text-gray-900 shadow-sm"
             >
               🍜 つけ麺
             </button>
             <button
-              onClick={() => router.push('/search?category=miso')}
+              onClick={() => {
+                trackCategoryClick('miso');
+                router.push('/restaurants?category=miso');
+              }}
               className="bg-white border-2 border-orange-200 px-6 py-4 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition-all font-bold text-gray-900 shadow-sm"
             >
               🍜 味噌
             </button>
             <button
-              onClick={() => router.push('/search?tag=morning')}
+              onClick={() => {
+                trackCategoryClick('morning');
+                router.push('/restaurants?tag=morning');
+              }}
               className="bg-white border-2 border-pink-200 px-6 py-4 rounded-xl hover:border-pink-400 hover:bg-pink-50 transition-all font-bold text-gray-900 shadow-sm"
             >
               ☀️ 朝ラー
             </button>
             <button
-              onClick={() => router.push('/search?tag=late-night')}
+              onClick={() => {
+                trackCategoryClick('late-night');
+                router.push('/restaurants?tag=late-night');
+              }}
               className="bg-white border-2 border-pink-200 px-6 py-4 rounded-xl hover:border-pink-400 hover:bg-pink-50 transition-all font-bold text-gray-900 shadow-sm"
             >
               🌙 深夜営業
             </button>
             <button
-              onClick={() => router.push('/search?tag=female-friendly')}
+              onClick={() => {
+                trackCategoryClick('female-friendly');
+                router.push('/restaurants?tag=female-friendly');
+              }}
               className="bg-white border-2 border-pink-200 px-6 py-4 rounded-xl hover:border-pink-400 hover:bg-pink-50 transition-all font-bold text-gray-900 shadow-sm"
             >
               👩 女性向け
             </button>
             <button
-              onClick={() => router.push('/search?tag=healthy')}
+              onClick={() => {
+                trackCategoryClick('healthy');
+                router.push('/restaurants?tag=healthy');
+              }}
               className="bg-white border-2 border-pink-200 px-6 py-4 rounded-xl hover:border-pink-400 hover:bg-pink-50 transition-all font-bold text-gray-900 shadow-sm"
             >
               🥗 健康志向
@@ -345,6 +417,14 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* ログインモーダル */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => setShowLoginModal(false)}
+        trigger="manual"
+      />
     </main>
   );
 }
