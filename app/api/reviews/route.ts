@@ -46,25 +46,35 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    // 認証チェック
-    const cookieStore = await cookies();
+    // Authorization ヘッダーからアクセストークンを取得
+    const authHeader = request.headers.get('authorization');
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'レビューを投稿するにはログインが必要です',
+          code: 'AUTH_REQUIRED',
+        },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    // トークンを使ってユーザー情報を取得
     const supabaseAuth = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
     const {
       data: { user: authUser },
-    } = await supabaseAuth.auth.getUser();
+      error: authError,
+    } = await supabaseAuth.auth.getUser(token);
 
-    if (!authUser) {
+    if (authError || !authUser) {
+      console.error('認証エラー:', authError);
       return NextResponse.json(
         {
           success: false,

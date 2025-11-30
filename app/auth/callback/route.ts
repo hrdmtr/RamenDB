@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js';
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
+  const redirectPath = requestUrl.searchParams.get('redirect');
   const origin = requestUrl.origin;
 
   if (code) {
@@ -21,6 +22,10 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // 元のページまたはホームページにリダイレクト
-  return NextResponse.redirect(`${origin}/`);
+  // リダイレクト先をURLパラメータとして中間ページに渡す
+  const redirectUrl = redirectPath
+    ? `${origin}/auth/redirect?redirect=${redirectPath}`
+    : `${origin}/auth/redirect`;
+
+  return NextResponse.redirect(redirectUrl);
 }
