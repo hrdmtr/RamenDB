@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
+import DebugAuthLoader from "@/components/DebugAuthLoader";
 
 export const metadata: Metadata = {
   title: {
@@ -73,6 +74,7 @@ export default function RootLayout({
     <html lang="ja">
       <body className="flex flex-col min-h-screen">
         <AuthProvider>
+          <DebugAuthLoader />
           <main className="flex-1">{children}</main>
           <Footer />
         </AuthProvider>

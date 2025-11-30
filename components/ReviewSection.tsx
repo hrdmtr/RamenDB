@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import Modal from './Modal';
 import ReviewForm from './ReviewForm';
 import QuickRatingForm from './QuickRatingForm';
+import LoginModal from './LoginModal';
 
 interface ReviewSectionProps {
   restaurantId: string;
@@ -15,8 +17,27 @@ type ReviewMode = 'select' | 'quick' | 'detailed';
 
 export default function ReviewSection({ restaurantId, reviews }: ReviewSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [reviewMode, setReviewMode] = useState<ReviewMode>('select');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, loading } = useAuth();
+
+  // URLパラメータ ?openReview=true でレビューモーダルを開く
+  useEffect(() => {
+    const shouldOpenReview = searchParams.get('openReview') === 'true';
+
+    if (shouldOpenReview && !loading && user) {
+      console.log('URLパラメータからレビューモーダルを開く');
+      setReviewMode('select');
+      setIsModalOpen(true);
+
+      // URLパラメータをクリーンアップ
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('openReview');
+      router.replace(newUrl.pathname + newUrl.search, { scroll: false });
+    }
+  }, [searchParams, user, loading, router]);
 
   const handleSuccess = () => {
     setIsModalOpen(false);
@@ -25,8 +46,18 @@ export default function ReviewSection({ restaurantId, reviews }: ReviewSectionPr
   };
 
   const handleOpenModal = () => {
+    // ログインチェック
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
     setReviewMode('select');
     setIsModalOpen(true);
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoginModalOpen(false);
   };
 
   const handleCancel = () => {
@@ -228,6 +259,14 @@ export default function ReviewSection({ restaurantId, reviews }: ReviewSectionPr
           </div>
         </div>
       )}
+
+      {/* ログインモーダル */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSuccess={handleLoginSuccess}
+        trigger="review"
+      />
 
       {/* レビュー投稿モーダル */}
       <Modal

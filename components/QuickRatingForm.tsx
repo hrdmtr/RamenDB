@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { supabaseAuth } from '@/lib/supabase-auth';
 
 interface QuickRatingFormProps {
   restaurantId: string;
@@ -71,9 +72,21 @@ export default function QuickRatingForm({
     setIsSubmitting(true);
 
     try {
+      // LocalStorageからアクセストークンを取得
+      const { data: { session } } = await supabaseAuth.auth.getSession();
+
+      if (!session?.access_token) {
+        alert('ログインセッションが見つかりません。再度ログインしてください。');
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch('/api/reviews', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           restaurant_id: restaurantId,
           review_type: 'quick',

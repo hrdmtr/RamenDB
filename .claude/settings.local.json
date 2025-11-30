@@ -23,7 +23,8 @@
       "Bash(curl http://localhost:3001/api/reviews)",
       "Bash(curl:*)",
       "Bash(npx supabase db push:*)",
-      "Bash(node scripts/run-migration.js:*)"
+      "Bash(node scripts/run-migration.js:*)",
+      "Bash(git cherry-pick:*)"
     ],
     "deny": [],
     "ask": []

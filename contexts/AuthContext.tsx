@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // 現在のセッションを取得
     supabaseAuth.auth.getSession().then(({ data: { session } }) => {
+      console.log('AuthContext: セッション取得', session ? 'ログイン済み' : '未ログイン', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -45,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabaseAuth.auth.onAuthStateChange(async (event, session) => {
+      console.log('AuthContext: 認証状態変更', event, session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -93,10 +95,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * Googleでログイン
    */
   const signInWithGoogle = async () => {
+    // 現在のページURLをエンコードしてredirectToに含める
+    const currentPath = window.location.pathname + window.location.search;
+    const encodedPath = encodeURIComponent(currentPath);
+
     const { error } = await supabaseAuth.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${encodedPath}`,
       },
     });
 
@@ -110,10 +116,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * X (Twitter)でログイン
    */
   const signInWithTwitter = async () => {
-    const { error } = await supabaseAuth.auth.signInWithOAuth({
+    // 現在のページURLをエンコードしてredirectToに含める
+    const currentPath = window.location.pathname + window.location.search;
+    const encodedPath = encodeURIComponent(currentPath);
+
+    console.log('Twitter OAuth開始');
+
+    const { data, error } = await supabaseAuth.auth.signInWithOAuth({
       provider: 'twitter',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${encodedPath}`,
       },
     });
 
@@ -121,6 +133,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Twitter ログインエラー:', error);
       throw error;
     }
+
+    console.log('Twitter OAuth レスポンス:', data);
   };
 
   /**
