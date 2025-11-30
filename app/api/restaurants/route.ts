@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -9,6 +11,7 @@ export async function GET(request: Request) {
     const tag = searchParams.get('tag') || '';
     const station = searchParams.get('station') || '';
     const railway = searchParams.get('railway') || '';
+    const prefecture = searchParams.get('prefecture') || '';
     const minScore = searchParams.get('minScore') || '';
 
     // SUUMOライク検索用パラメータ
@@ -69,6 +72,11 @@ export async function GET(request: Request) {
     // 路線フィルター
     if (railway) {
       query = query.ilike('railway', `%${railway}%`);
+    }
+
+    // 都道府県フィルター
+    if (prefecture) {
+      query = query.ilike('address', `%${prefecture}%`);
     }
 
     // 最低スコアフィルター

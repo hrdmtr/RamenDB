@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { supabaseAuth } from '@/lib/supabase-auth';
 
 interface ReviewFormProps {
   restaurantId: string;
@@ -91,26 +92,27 @@ export default function ReviewForm({
     setError('');
 
     try {
-      // 既存ユーザーを取得（本来は認証システムから取得）
-      const usersResponse = await fetch('/api/users');
-      const usersData = await usersResponse.json();
+      // LocalStorageからアクセストークンを取得
+      const { data: { session } } = await supabaseAuth.auth.getSession();
 
-      if (!usersData.success || !usersData.data || usersData.data.length === 0) {
-        throw new Error('ユーザー情報の取得に失敗しました');
+      if (!session?.access_token) {
+        throw new Error('ログインセッションが見つかりません。再度ログインしてください。');
       }
-
-      // 最初のユーザーを使用（本来は認証済みユーザーのID）
-      const userId = usersData.data[0].id;
 
       const response = await fetch('/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           restaurant_id: restaurantId,
-          user_id: userId,
-          score: Number(score),
+          review_type: 'detailed',
+          score_taste: 3, // TODO: 個別に入力できるようにする
+          score_portion: 3,
+          score_price: 3,
+          score_service: 3,
+          score_cleanliness: 3,
           taste_comment: tasteComment,
           atmosphere_type: atmosphereType,
           atmosphere_comment: atmosphereComment || null,
@@ -121,7 +123,6 @@ export default function ReviewForm({
           self_service_note: selfServiceNote || null,
           serving_time: servingTime,
           serving_time_note: servingTimeNote || null,
-          flavor_richness: flavorRichness,
           general_comment: generalComment || null,
           visit_date: visitDate || null,
           image_urls: imageUrls.length > 0 ? imageUrls : null,

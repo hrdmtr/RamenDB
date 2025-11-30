@@ -1,8 +1,8 @@
 # プロジェクト状況
 
-**最終更新**: 2025-11-23 02:00
+**最終更新**: 2025-11-29 07:45
 **現在のブランチ**: main
-**プロジェクト状態**: レビュー投稿機能実装完了（画像アップロード対応）、開発環境稼働中
+**プロジェクト状態**: ユーザー認証機能（Phase 1 & 2）実装完了、開発環境稼働中
 
 ---
 
@@ -64,6 +64,19 @@
   - [x] 管理者ダッシュボード
   - [x] 店舗管理画面（一覧・編集・削除）
   - [x] レビュー管理画面（一覧・削除）
+- [x] ユーザー認証機能（Phase 1 & 2）
+  - [x] 匿名ユーザー管理
+    - [x] データベースマイグレーション（users, user_activities）
+    - [x] 匿名ID生成・管理（UUID v4 + LocalStorage/Cookie）
+    - [x] 行動トラッキング（検索、閲覧、クリック）
+    - [x] パーソナライズドおすすめ機能
+  - [x] OAuth認証
+    - [x] Google OAuth設定・実装
+    - [x] X (Twitter) OAuth設定・実装
+    - [x] 認証状態管理（AuthContext）
+    - [x] ログインモーダル実装
+    - [x] 匿名データ統合API
+    - [x] レビュー投稿認証チェック
 
 ---
 
@@ -73,8 +86,8 @@
 RamenDB/
 ├── .git/                     # Gitリポジトリ
 ├── app/                      # Next.js App Router
-│   ├── layout.tsx           # ルートレイアウト
-│   ├── page.tsx             # ホーム画面
+│   ├── layout.tsx           # ルートレイアウト（AuthProvider追加）
+│   ├── page.tsx             # ホーム画面（ログイン/ログアウトボタン）
 │   ├── globals.css          # グローバルスタイル
 │   ├── restaurants/         # 店舗ページ
 │   │   ├── page.tsx         # 店舗一覧画面（検索・フィルタリング対応）
@@ -89,15 +102,26 @@ RamenDB/
 │   │   │       └── page.tsx # 店舗編集画面
 │   │   └── reviews/         # レビュー管理
 │   │       └── page.tsx     # レビュー一覧
+│   ├── auth/                # 認証関連
+│   │   └── callback/        # OAuth コールバック
+│   │       └── route.ts     # 認証コールバックハンドラー
 │   └── api/                 # APIルート
 │       ├── test/            # 接続テストAPI
 │       │   └── route.ts     # Supabase接続テスト
 │       ├── restaurants/     # レストランAPI
 │       │   └── route.ts     # レストランCRUD
 │       ├── reviews/         # レビューAPI
-│       │   └── route.ts     # レビューCRUD
+│       │   └── route.ts     # レビューCRUD（認証必須）
 │       ├── users/           # ユーザーAPI
-│       │   └── route.ts     # ユーザー取得
+│       │   ├── route.ts     # ユーザー取得
+│       │   ├── anonymous/   # 匿名ユーザー
+│       │   │   └── route.ts # 匿名ユーザー作成
+│       │   └── migrate/     # データ統合
+│       │       └── route.ts # 匿名→認証済みデータ統合
+│       ├── user-activities/ # 行動トラッキング
+│       │   └── route.ts     # 行動履歴記録
+│       ├── recommendations/ # おすすめAPI
+│       │   └── route.ts     # パーソナライズドおすすめ
 │       ├── categories/      # カテゴリAPI
 │       │   └── route.ts     # カテゴリ一覧取得
 │       ├── tags/            # タグAPI
@@ -109,10 +133,16 @@ RamenDB/
 │   ├── ReviewForm.tsx       # レビュー投稿フォーム（9項目詳細版）
 │   ├── ReviewSection.tsx    # レビュー表示セクション
 │   ├── RestaurantFilter.tsx # 検索・フィルターコンポーネント
+│   ├── LoginModal.tsx       # ログインモーダル（Google/X OAuth）
+│   ├── RecommendationsSection.tsx # おすすめセクション
 │   └── ui/                  # shadcn/uiコンポーネント（今後追加）
+├── contexts/                 # React Context
+│   └── AuthContext.tsx      # 認証状態管理
 ├── lib/                      # ユーティリティ・ヘルパー
 │   ├── utils.ts             # ユーティリティ関数
-│   └── supabase.ts          # Supabaseクライアント
+│   ├── supabase.ts          # Supabaseクライアント
+│   ├── supabase-auth.ts     # Supabase Auth クライアント
+│   └── anonymous-user.ts    # 匿名ユーザー管理
 ├── types/                    # TypeScript型定義
 │   └── index.ts             # 共通型定義
 ├── supabase/                 # Supabaseマイグレーション
@@ -122,12 +152,17 @@ RamenDB/
 │       ├── 20251122000002_seed_restaurants.sql  # サンプルレストランデータ
 │       ├── 20251122000003_seed_users_reviews.sql  # サンプルユーザー・レビューデータ
 │       ├── 20251122000004_add_detailed_review_fields.sql  # レビュー詳細項目追加
-│       └── 20251122000005_add_atmosphere_type.sql  # 雰囲気選択式・画像URL追加
+│       ├── 20251122000005_add_atmosphere_type.sql  # 雰囲気選択式・画像URL追加
+│       └── 20251128000001_add_anonymous_users.sql  # 匿名ユーザー・認証機能追加
+├── scripts/                  # ユーティリティスクリプト
+│   └── run-migration.js     # マイグレーション実行スクリプト
 ├── public/                   # 静的ファイル
 ├── docs/                     # ドキュメント
 │   ├── 要件定義.md          # 要件定義書
 │   ├── database-design.md   # データベース設計書
-│   └── RDレビュー入力項目分割機能.md  # レビュー詳細項目仕様
+│   ├── RDレビュー入力項目分割機能.md  # レビュー詳細項目仕様
+│   ├── RDユーザー認証.md    # ユーザー認証技術仕様書
+│   └── ユーザー認証コンセプト.md  # ユーザー認証要件定義
 ├── node_modules/             # 依存パッケージ
 ├── package.json              # 依存関係
 ├── package-lock.json         # 依存関係ロックファイル
@@ -366,6 +401,49 @@ RamenDB/
     - エラー時のファイル入力リセット
   - Supabase Storageバケット「review-images」を作成（パブリックバケット）
   - 画像アップロード・プレビュー・枚数カウント動作確認成功
+
+### 2025-11-29 07:45
+- ユーザー認証機能（Phase 1 & 2）の実装完了
+  - **Phase 1: 匿名ユーザー管理**
+    - データベースマイグレーション作成・実行
+      - users テーブル拡張（auth_user_id, anonymous_id, favorite_categories, review_count, last_activity_at等）
+      - user_activities テーブル作成
+      - トリガー実装（last_activity_at, review_count自動更新）
+      - reviews テーブルに1店舗1レビュー制約追加
+      - 重複レビューデータ削除処理追加
+    - 匿名ユーザー管理ライブラリ実装（lib/anonymous-user.ts）
+      - UUID v4による匿名ID生成
+      - LocalStorage + Cookie による90日間ID永続化
+      - 行動トラッキング機能（検索、閲覧、カテゴリクリック）
+    - API実装
+      - /api/users/anonymous: 匿名ユーザー作成API
+      - /api/user-activities: 行動履歴記録API
+      - /api/recommendations: パーソナライズドおすすめAPI
+    - UI実装
+      - RecommendationsSection コンポーネント作成
+      - ホームページに匿名ID初期化とトラッキング追加
+    - 動作確認成功（匿名ユーザー作成、トラッキング、おすすめ表示）
+  - **Phase 2: OAuth認証**
+    - Supabase Auth設定
+      - Google OAuth設定完了
+      - X (Twitter) OAuth設定完了
+    - 認証機能実装
+      - contexts/AuthContext.tsx: 認証状態管理
+      - lib/supabase-auth.ts: Supabase Auth クライアント
+      - components/LoginModal.tsx: ログインモーダル（Google/X対応）
+      - app/auth/callback/route.ts: OAuthコールバックハンドラー
+      - app/api/users/migrate/route.ts: 匿名データ統合API
+    - 認証チェック追加
+      - app/api/reviews/route.ts: レビュー投稿に認証必須化
+    - UI改善
+      - app/layout.tsx: AuthProviderでアプリ全体をラップ
+      - app/page.tsx: ログイン/ログアウトボタン追加
+    - Google OAuth認証テスト成功
+    - ユーザーデータ作成・統合確認完了
+  - ドキュメント作成
+    - docs/RDユーザー認証.md: 技術仕様書
+    - docs/ユーザー認証コンセプト.md: 要件定義
+  - Git コミット＆プッシュ完了
 
 ---
 

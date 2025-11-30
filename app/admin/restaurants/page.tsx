@@ -71,6 +71,13 @@ export default function AdminRestaurantsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-gray-900">店舗管理</h1>
+        <Link
+          href="/admin/restaurants/new"
+          className="inline-flex items-center bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold py-3 px-6 rounded-lg hover:from-orange-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl"
+        >
+          <span className="mr-2">🏪</span>
+          新しい店舗を追加
+        </Link>
       </div>
 
       {isLoading && (
@@ -176,8 +183,20 @@ export default function AdminRestaurantsPage() {
           </table>
 
           {restaurants.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              店舗が登録されていません
+            <div className="text-center py-16">
+              <p className="text-gray-700 text-lg font-semibold mb-4">
+                店舗が登録されていません
+              </p>
+              <p className="text-gray-500 mb-6">
+                右上の「新しい店舗を追加」ボタンから最初の店舗を追加しましょう
+              </p>
+              <Link
+                href="/admin/restaurants/new"
+                className="inline-flex items-center bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold py-3 px-8 rounded-lg hover:from-orange-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl"
+              >
+                <span className="mr-2">🏪</span>
+                最初の店舗を追加する
+              </Link>
             </div>
           )}
         </div>

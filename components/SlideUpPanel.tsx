@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 interface SlideUpPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  onApply?: () => void; // 「この条件で絞り込む」ボタンのコールバック
   title: string;
   children: React.ReactNode;
 }
@@ -12,6 +13,7 @@ interface SlideUpPanelProps {
 export default function SlideUpPanel({
   isOpen,
   onClose,
+  onApply,
   title,
   children,
 }: SlideUpPanelProps) {
@@ -61,8 +63,27 @@ export default function SlideUpPanel({
         </div>
 
         {/* コンテンツ */}
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(85vh - 200px)' }}>
           {children}
+        </div>
+
+        {/* 下部ボタン */}
+        <div className="sticky bottom-0 bg-white border-t p-4 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            キャンセル
+          </button>
+          <button
+            onClick={() => {
+              if (onApply) onApply();
+              onClose();
+            }}
+            className="flex-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-lg hover:from-orange-600 hover:to-pink-600 transition-all shadow-lg"
+          >
+            この条件で絞り込む
+          </button>
         </div>
       </div>
     </>
