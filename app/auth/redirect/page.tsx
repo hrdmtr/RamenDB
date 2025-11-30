@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 /**
@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
  *
  * URLパラメータから元のページURLを取得してリダイレクトする
  */
-export default function AuthRedirectPage() {
+function AuthRedirectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -37,5 +37,20 @@ export default function AuthRedirectPage() {
         <p className="text-gray-600">ログイン処理中...</p>
       </div>
     </div>
+  );
+}
+
+export default function AuthRedirectPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-300 border-t-pink-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">ログイン処理中...</p>
+        </div>
+      </div>
+    }>
+      <AuthRedirectContent />
+    </Suspense>
   );
 }
