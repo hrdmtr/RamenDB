@@ -44,18 +44,17 @@ export async function POST(request: Request) {
       website,
       twitter,
       instagram,
-      short_description,
       profile_description,
       thumbnail_url,
     } = body;
 
-    // バリデーション
-    if (!name || !name_kana || !address || !nearest_station || !railway) {
-      console.error('バリデーションエラー:', { name, name_kana, address, nearest_station, railway });
+    // バリデーション（name と address のみ必須）
+    if (!name || !address) {
+      console.error('バリデーションエラー:', { name, address });
       return NextResponse.json(
         {
           success: false,
-          error: '必須項目が入力されていません',
+          error: '必須項目（店舗名、住所）が入力されていません',
         },
         { status: 400 }
       );
@@ -68,17 +67,15 @@ export async function POST(request: Request) {
       .from('restaurants')
       .insert({
         name,
-        name_kana,
+        name_kana: name_kana || null,
         address,
-        nearest_station,
-        railway,
+        nearest_station: nearest_station || null,
+        railway: railway || null,
         phone_number: phone_number || null,
         website: website || null,
         twitter: twitter || null,
         instagram: instagram || null,
-        short_description: short_description || null,
         profile_description: profile_description || null,
-        thumbnail_url: thumbnail_url || null,
         average_score: 0,
         review_count: 0,
       })
