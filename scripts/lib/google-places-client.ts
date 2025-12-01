@@ -33,7 +33,7 @@ export class GooglePlacesClient {
   }
 
   /**
-   * Search for restaurants near a location
+   * Search for restaurants near a location (with pagination support)
    */
   async searchNearby(
     lat: number,
@@ -44,27 +44,50 @@ export class GooglePlacesClient {
     try {
       this.logger.info(`Searching for: "${query}" near (${lat}, ${lng}), radius: ${radius}m`);
 
-      const response = await this.client.textSearch({
-        params: {
-          query: query,
-          location: { lat, lng },
-          radius: radius,
-          key: this.apiKey,
-          language: 'ja',
-        },
-      });
+      let allResults: PlaceData[] = [];
+      let nextPageToken: string | undefined = undefined;
+      let pageCount = 0;
+      const maxPages = 3; // Google Places API supports up to 3 pages (60 results total)
 
-      if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
-        this.logger.error(`Places API search failed`, {
-          status: response.data.status,
+      do {
+        // Wait before fetching next page (required by Google Places API)
+        if (nextPageToken) {
+          this.logger.info(`Waiting 2 seconds before fetching next page...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+
+        const response = await this.client.textSearch({
+          params: {
+            query: query,
+            location: { lat, lng },
+            radius: radius,
+            key: this.apiKey,
+            language: 'ja',
+            pagetoken: nextPageToken,
+          },
         });
-        return [];
-      }
 
-      const results = response.data.results || [];
-      this.logger.success(`Found ${results.length} restaurants`);
+        if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
+          this.logger.error(`Places API search failed`, {
+            status: response.data.status,
+          });
+          break;
+        }
 
-      return results;
+        const results = response.data.results || [];
+        allResults = allResults.concat(results);
+        pageCount++;
+
+        this.logger.success(`Page ${pageCount}: Found ${results.length} restaurants (Total: ${allResults.length})`);
+
+        nextPageToken = response.data.next_page_token;
+
+        // Continue if there's a next page token and we haven't reached max pages
+      } while (nextPageToken && pageCount < maxPages);
+
+      this.logger.success(`Search complete: ${allResults.length} restaurants found across ${pageCount} page(s)`);
+
+      return allResults;
     } catch (error: any) {
       this.logger.error(`Places API search error: ${error.message}`);
       return [];
