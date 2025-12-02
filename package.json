@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:clean": "rm -rf .next && next dev",
     "build": "next build",
+    "build:clean": "rm -rf .next && next build",
     "start": "next start",
     "lint": "next lint",
-    "scrape-places": "tsx scripts/scrape-places.ts"
+    "scrape-places": "tsx scripts/scrape-places.ts",
+    "scrape-stations": "tsx scripts/batch-scrape-stations.ts"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",
