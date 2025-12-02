@@ -123,4 +123,11 @@ export class Logger {
     console.log(chalk.yellow(`Warning: ${summary.warning}`));
     console.log(chalk.red(`Error: ${summary.error}`));
   }
+
+  /**
+   * Get log file path
+   */
+  getLogFilePath(): string {
+    return this.logFilePath;
+  }
 }
