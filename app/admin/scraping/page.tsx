@@ -156,23 +156,23 @@ export default function ScrapingStatusPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-2 text-left">駅</th>
-                <th className="px-4 py-2 text-left">キーワード</th>
-                <th className="px-4 py-2 text-left">ステータス</th>
-                <th className="px-4 py-2 text-right">発見</th>
-                <th className="px-4 py-2 text-right">新規</th>
-                <th className="px-4 py-2 text-right">更新</th>
-                <th className="px-4 py-2 text-left">実行日時</th>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">駅</th>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">キーワード</th>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">ステータス</th>
+                <th className="px-4 py-2 text-right font-semibold text-gray-700">発見</th>
+                <th className="px-4 py-2 text-right font-semibold text-gray-700">新規</th>
+                <th className="px-4 py-2 text-right font-semibold text-gray-700">更新</th>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">実行日時</th>
               </tr>
             </thead>
             <tbody>
               {recentJobs.map((job) => (
                 <tr key={job.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-2">
-                    <div className="font-medium">{job.station.name}</div>
-                    <div className="text-xs text-gray-500">{job.station.railway}</div>
+                    <div className="font-medium text-gray-900">{job.station.name}</div>
+                    <div className="text-xs text-gray-600">{job.station.railway}</div>
                   </td>
-                  <td className="px-4 py-2">{job.query}</td>
+                  <td className="px-4 py-2 text-gray-900">{job.query}</td>
                   <td className="px-4 py-2">
                     {job.status === 'completed' && (
                       <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-sm">
@@ -195,14 +195,14 @@ export default function ScrapingStatusPage() {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-2 text-right">{job.restaurants_found}</td>
-                  <td className="px-4 py-2 text-right text-green-700">
+                  <td className="px-4 py-2 text-right text-gray-900 font-medium">{job.restaurants_found}</td>
+                  <td className="px-4 py-2 text-right text-green-700 font-medium">
                     {job.restaurants_new}
                   </td>
-                  <td className="px-4 py-2 text-right text-yellow-700">
+                  <td className="px-4 py-2 text-right text-yellow-700 font-medium">
                     {job.restaurants_updated}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-600">
+                  <td className="px-4 py-2 text-sm text-gray-700">
                     {job.completed_at
                       ? new Date(job.completed_at).toLocaleString('ja-JP')
                       : new Date(job.created_at).toLocaleString('ja-JP')}

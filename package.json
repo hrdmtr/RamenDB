@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "next lint",
     "scrape-places": "tsx scripts/scrape-places.ts",
-    "scrape-stations": "tsx scripts/batch-scrape-stations.ts"
+    "scrape-stations": "tsx scripts/batch-scrape-stations.ts",
+    "collect-stations": "tsx scripts/collect-stations.ts"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",
