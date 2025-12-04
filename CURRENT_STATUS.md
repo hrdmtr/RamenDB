@@ -1,8 +1,8 @@
 # プロジェクト状況
 
-**最終更新**: 2025-11-29 07:45
+**最終更新**: 2025-12-03 07:00
 **現在のブランチ**: main
-**プロジェクト状態**: ユーザー認証機能（Phase 1 & 2）実装完了、開発環境稼働中
+**プロジェクト状態**: スクレイピング管理システム実装完了、レスポンシブ対応完了、開発環境稼働中
 
 ---
 
@@ -45,11 +45,13 @@
 
 ### フェーズ2: MVP機能実装（優先順位順）
 
-- [ ] 店舗管理機能
+- [x] 店舗管理機能
   - [x] 店舗一覧画面
   - [x] 店舗詳細画面
-  - [ ] 店舗登録フォーム（管理者用）
-  - [ ] 店舗編集機能（管理者用）
+  - [x] 店舗登録フォーム（管理者用）
+  - [x] 店舗編集機能（管理者用）
+  - [x] Google Places API 自動登録（CLI）
+  - [x] スクレイピング管理システム
 - [x] レビュー機能
   - [x] レビュー表示
   - [x] レビュー投稿フォーム（詳細項目分割版）
@@ -153,16 +155,30 @@ RamenDB/
 │       ├── 20251122000003_seed_users_reviews.sql  # サンプルユーザー・レビューデータ
 │       ├── 20251122000004_add_detailed_review_fields.sql  # レビュー詳細項目追加
 │       ├── 20251122000005_add_atmosphere_type.sql  # 雰囲気選択式・画像URL追加
-│       └── 20251128000001_add_anonymous_users.sql  # 匿名ユーザー・認証機能追加
+│       ├── 20251128000001_add_anonymous_users.sql  # 匿名ユーザー・認証機能追加
+│       ├── 20251202000001_scraping_management.sql  # スクレイピング管理テーブル
+│       └── 20251202000002_scraping_stats_function.sql  # スクレイピング統計関数
 ├── scripts/                  # ユーティリティスクリプト
-│   └── run-migration.js     # マイグレーション実行スクリプト
+│   ├── run-migration.js     # マイグレーション実行スクリプト
+│   ├── scrape-places.ts     # Google Places API スクレイピング
+│   ├── batch-scrape-stations.ts  # 駅ベース一括スクレイピング
+│   ├── collect-stations.ts  # 駅データ収集
+│   └── lib/                 # スクリプト共通ライブラリ
+│       ├── google-places-client.ts
+│       ├── db-restaurant-uploader.ts
+│       └── logger.ts
 ├── public/                   # 静的ファイル
 ├── docs/                     # ドキュメント
 │   ├── 要件定義.md          # 要件定義書
 │   ├── database-design.md   # データベース設計書
 │   ├── RDレビュー入力項目分割機能.md  # レビュー詳細項目仕様
 │   ├── RDユーザー認証.md    # ユーザー認証技術仕様書
-│   └── ユーザー認証コンセプト.md  # ユーザー認証要件定義
+│   ├── ユーザー認証コンセプト.md  # ユーザー認証要件定義
+│   ├── requirements/        # 要件定義（詳細）
+│   │   └── future-features.md  # 将来実装予定機能（報酬システム、YouTube登録、Places API）
+│   └── troubleshooting/     # トラブルシューティング記録
+│       ├── 20251201-usesearchparams-suspense-error.md  # useSearchParams Suspense エラー
+│       └── 20251202-nextjs-cache-issue.md  # Next.js キャッシュ問題
 ├── node_modules/             # 依存パッケージ
 ├── package.json              # 依存関係
 ├── package-lock.json         # 依存関係ロックファイル
@@ -404,46 +420,106 @@ RamenDB/
 
 ### 2025-11-29 07:45
 - ユーザー認証機能（Phase 1 & 2）の実装完了
-  - **Phase 1: 匿名ユーザー管理**
-    - データベースマイグレーション作成・実行
-      - users テーブル拡張（auth_user_id, anonymous_id, favorite_categories, review_count, last_activity_at等）
-      - user_activities テーブル作成
-      - トリガー実装（last_activity_at, review_count自動更新）
-      - reviews テーブルに1店舗1レビュー制約追加
-      - 重複レビューデータ削除処理追加
-    - 匿名ユーザー管理ライブラリ実装（lib/anonymous-user.ts）
-      - UUID v4による匿名ID生成
-      - LocalStorage + Cookie による90日間ID永続化
-      - 行動トラッキング機能（検索、閲覧、カテゴリクリック）
-    - API実装
-      - /api/users/anonymous: 匿名ユーザー作成API
-      - /api/user-activities: 行動履歴記録API
-      - /api/recommendations: パーソナライズドおすすめAPI
-    - UI実装
-      - RecommendationsSection コンポーネント作成
-      - ホームページに匿名ID初期化とトラッキング追加
-    - 動作確認成功（匿名ユーザー作成、トラッキング、おすすめ表示）
-  - **Phase 2: OAuth認証**
-    - Supabase Auth設定
-      - Google OAuth設定完了
-      - X (Twitter) OAuth設定完了
-    - 認証機能実装
-      - contexts/AuthContext.tsx: 認証状態管理
-      - lib/supabase-auth.ts: Supabase Auth クライアント
-      - components/LoginModal.tsx: ログインモーダル（Google/X対応）
-      - app/auth/callback/route.ts: OAuthコールバックハンドラー
-      - app/api/users/migrate/route.ts: 匿名データ統合API
-    - 認証チェック追加
-      - app/api/reviews/route.ts: レビュー投稿に認証必須化
-    - UI改善
-      - app/layout.tsx: AuthProviderでアプリ全体をラップ
-      - app/page.tsx: ログイン/ログアウトボタン追加
-    - Google OAuth認証テスト成功
-    - ユーザーデータ作成・統合確認完了
-  - ドキュメント作成
-    - docs/RDユーザー認証.md: 技術仕様書
-    - docs/ユーザー認証コンセプト.md: 要件定義
-  - Git コミット＆プッシュ完了
+
+### 2025-12-01 00:00
+- 将来実装予定機能の要件定義ドキュメント作成
+  - docs/requirements/future-features.md 作成
+  - 要件1: レビュー報酬システム（Amazonギフト券配布）
+  - 要件2: YouTube動画から店舗登録機能
+  - 要件3: Google Places API を使った店舗自動登録CLIツール
+  - 未確定事項・検討事項の整理
+
+### 2025-12-02 00:00
+- Google Places API スクレイピング機能の実装
+  - scripts/scrape-places.ts 作成
+  - Google Places API クライアント実装
+  - データベース自動登録機能実装
+  - ロガー機能実装
+  - コマンドライン引数対応（--area, --query）
+  - 重複チェック機能実装
+  - 動作確認成功
+
+### 2025-12-02 12:00
+- スクレイピング管理システムの実装
+  - データベース設計
+    - stations テーブル（駅マスター）
+    - scraping_jobs テーブル（ジョブ管理）
+    - scraping_results テーブル（収集履歴）
+  - マイグレーション作成・実行
+    - 20251202000001_scraping_management.sql
+    - 20251202000002_scraping_stats_function.sql
+  - 駅ベース一括スクレイピング実装
+    - scripts/batch-scrape-stations.ts
+    - ジョブステータス管理（pending/running/completed/failed）
+    - 実行結果サマリー表示
+  - 駅データ収集機能実装
+    - scripts/collect-stations.ts
+    - Google Places API で神奈川県の駅を自動収集
+    - 67駅を登録（初期10駅 + 新規57駅）
+  - 管理画面実装
+    - /admin/scraping ページ作成
+    - リアルタイム統計表示
+    - ジョブステータスカード
+    - 収集済み店舗数表示
+    - 最近のジョブ一覧
+    - 30秒ごとの自動更新
+  - API実装
+    - /api/admin/scraping/stats（統計情報取得）
+  - 234ジョブ作成完了（67駅 × 3キーワード + α）
+
+### 2025-12-02 18:00
+- トラブルシューティング記録の整理
+  - docs/troubleshooting/ ディレクトリ作成
+  - Next.js キャッシュ問題の記録
+    - 20251202-nextjs-cache-issue.md
+    - 原因分析、解決方法、予防策を記録
+  - useSearchParams Suspense エラーの記録
+    - 20251201-usesearchparams-suspense-error.md（既存ファイルを移動）
+  - ファイル名規則統一（YYYYMMDD-問題名.md）
+
+### 2025-12-03 00:00
+- スクレイピング管理UIの改善
+  - テキスト色の視認性向上
+    - テーブルヘッダー: text-gray-700 + font-semibold
+    - テーブル本文: text-gray-900 + font-medium
+    - 日付: text-gray-700
+  - Git運用
+    - feature/scraping-ui-improvements ブランチ作成
+    - プルリクエスト #8 作成・マージ
+
+### 2025-12-03 06:00
+- スクレイピング管理画面のレスポンシブ対応
+  - 全デバイス対応（スマートフォン、タブレット、デスクトップ）
+  - Tailwind CSS レスポンシブクラス適用
+    - コンテナ: p-4 sm:p-6 lg:p-8
+    - ヘッダー: flex-col sm:flex-row
+    - カード: grid-cols-2 sm:grid-cols-3 lg:grid-cols-5
+    - テキスト: text-xs sm:text-sm, text-2xl sm:text-3xl
+    - テーブル: 横スクロール対応、whitespace-nowrap
+  - Git運用
+    - feature/responsive-scraping-ui ブランチ作成
+    - プルリクエスト #9 作成・マージ
+
+---
+
+## 📚 作成済みドキュメント
+
+### 要件定義
+- [docs/要件定義.md](./docs/要件定義.md) - プロジェクト全体の要件定義
+- [docs/requirements/future-features.md](./docs/requirements/future-features.md) - 将来実装予定機能
+  - 要件1: レビュー報酬システム（Amazonギフト券）
+  - 要件2: YouTube動画から店舗登録
+  - 要件3: Google Places API 店舗自動登録（✅実装済み）
+
+### 技術仕様書
+- [docs/database-design.md](./docs/database-design.md) - データベース設計書
+- [docs/RDレビュー入力項目分割機能.md](./docs/RDレビュー入力項目分割機能.md) - レビュー詳細項目仕様
+- [docs/RDユーザー認証.md](./docs/RDユーザー認証.md) - ユーザー認証技術仕様書
+- [docs/ユーザー認証コンセプト.md](./docs/ユーザー認証コンセプト.md) - ユーザー認証要件定義
+
+### トラブルシューティング
+- [docs/troubleshooting/20251201-usesearchparams-suspense-error.md](./docs/troubleshooting/20251201-usesearchparams-suspense-error.md)
+- [docs/troubleshooting/20251202-nextjs-cache-issue.md](./docs/troubleshooting/20251202-nextjs-cache-issue.md)
 
 ---
 
